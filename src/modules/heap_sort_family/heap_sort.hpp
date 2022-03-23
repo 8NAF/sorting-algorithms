@@ -67,11 +67,6 @@ struct mak::heap_sort : mak::heap_sort_family
 		if (no_need_to_sort(first, last)) return;
 
 		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = std::invoke_result_t<
-			decltype(transform_to_2_way<value_t, Comparator>),
-			Comparator
-		>;
-
 		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
 
 		make_heap(first, last, is_before_2_way);
