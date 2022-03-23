@@ -66,7 +66,7 @@ protected:
 
 			if (is_before(next_value, current_value))
 			{
-				std::swap(next_value, current_value);
+				ranges::swap(next_value, current_value);
 				if (is_break_on_first_swap(current)) break;
 			}
 		}
@@ -90,7 +90,7 @@ protected:
 
 			if (is_before(next_value, current_value))
 			{
-				std::swap(next_value, current_value);
+				ranges::swap(next_value, current_value);
 				last_swap = current;
 			}
 		}
@@ -115,7 +115,7 @@ protected:
 
 			if (is_before(current_value, prev_value))
 			{
-				std::swap(current_value, prev_value);
+				ranges::swap(current_value, prev_value);
 				last_swap = current;
 			}
 		}
