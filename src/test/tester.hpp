@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <algorithm>
 #include <array>
 #include <vector>
 #include <list>
@@ -40,7 +41,7 @@ struct Printer
 		return ((std::cout << open << args << ' ' << close), ...);
 	}
 
-	static void print_range(std::ranges::input_range auto&& range)
+	static void print_range(std::ranges::input_range auto&& range, auto comparator)
 	{
 		auto s = std::string();
 
@@ -50,11 +51,12 @@ struct Printer
 			s += std::to_string(value) + " ";
 		}
 
+		s += std::ranges::is_sorted(range, comparator) ? "(is sorted)" : "(is not sorted)";
 		std::cout << ((s.length() == 0) ? "<empty>" : s) << std::endl;
 	}
 
 	template <class E>
-	static void print_range(E* range, size_t n)
+	static void print_range(E* range, auto comparator, size_t n)
 	{
 		auto s = std::string();
 		for (size_t i = 0; i < n; ++i)
@@ -62,6 +64,8 @@ struct Printer
 			//TODO: use std::format
 			s += std::to_string(range[i]) + " ";
 		}
+
+		s += std::ranges::is_sorted(range, range + n, comparator) ? "(is sorted)" : "(is not sorted)";
 		std::cout << ((s.length() == 0) ? "<empty>" : s) << std::endl;
 	}
 };
@@ -83,15 +87,15 @@ private:
 			);
 
 		std::cout << "\noriginal: ";
-		Printer::print_range(sample, nums...);
+		Printer::print_range(sample, std::ranges::equal_to(), nums...);
 
 		S::sort(sample, nums...);
 		std::cout << "     asc: ";
-		Printer::print_range(sample, nums...);
+		Printer::print_range(sample, std::ranges::less(), nums...);
 
 		S::sort(sample, nums..., std::is_gt);
 		std::cout << "    desc: ";
-		Printer::print_range(sample, nums...);
+		Printer::print_range(sample, std::ranges::greater(), nums...);
 	}
 
 	template <class... Samples>
