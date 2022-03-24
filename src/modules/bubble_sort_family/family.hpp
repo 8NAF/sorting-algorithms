@@ -28,7 +28,6 @@ namespace mak
 	using mak::types::default_comparator;
 	using mak::functions::no_need_to_sort;
 	using mak::functions::transform_to_2_way;
-	using mak::functions::prev_mod;
 }
 
 class mak::bubble_sort_family

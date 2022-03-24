@@ -49,23 +49,26 @@ public:
 		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
 		auto _sort_the_rest = sort_the_rest<Bidi_It, comparator_t>;
 
-		auto gap_sequence = get_gap_sequence(ranges::distance(first, --last));
+		auto d_first_last = ranges::distance(first, --last);
+		auto gap_sequence = get_gap_sequence(d_first_last);
 
 		for (auto const& gap : gap_sequence)
 		{
-			// prev(gap - 1)
-			auto upper_limit = ranges::next(ranges::prev(last, gap));
-			auto sub_first = first;
-			auto sub_last = prev_mod(sub_first, last, gap);
+			auto [sub_first, sub_last] = std::pair(first, last);
+			auto upper_limit = ranges::prev(last, gap - 1);
+			auto d_sub_first_Last = d_first_last;
 
 			while (sub_first != upper_limit)
 			{
+				sub_last =
+					(sub_last != last) ?
+					ranges::next(sub_last) :
+					ranges::prev(last, d_sub_first_Last % gap);
+
 				_sort_the_rest({ sub_first, sub_last, is_before_2_way, gap });
 
 				++sub_first;
-				sub_last = (sub_last != last) ?
-					ranges::next(sub_last) :
-					prev_mod(sub_first, last, gap);
+				--d_sub_first_Last;
 			}
 		}
 
