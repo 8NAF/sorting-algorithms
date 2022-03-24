@@ -46,6 +46,11 @@ namespace mak
 				}
 			};
 		}
+
+		template <std::input_iterator Input_It>
+		auto midpoint(Input_It first, Input_It last) {
+			return ranges::next(first, ranges::distance(first, last) / 2);
+		}
 	}
 
 #undef Input_It
