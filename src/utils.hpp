@@ -9,6 +9,7 @@
 namespace mak
 {
 #define Input_It Input_Iterator
+#define Bidi_It Bidirectional_Iterator
 
 	namespace ranges = std::ranges;
 	using mak::concepts::comparator;
@@ -53,8 +54,19 @@ namespace mak
 		auto midpoint(Input_It first, Input_It last) {
 			return ranges::next(first, ranges::distance(first, last) / 2);
 		}
+
+		/**
+		  * last - (last - first) % gap
+		  */
+		template <
+			std::bidirectional_iterator Bidi_It,
+			std::unsigned_integral UInt
+		> auto prev_mod(Bidi_It first, Bidi_It last, UInt gap)
+		{
+			return ranges::prev(last, ranges::distance(first, last) % gap);
+		}
 	}
 
 #undef Input_It
-
+#undef Bidi_It
 }

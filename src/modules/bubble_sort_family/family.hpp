@@ -1,6 +1,7 @@
 #pragma once
 
 #include "concepts/comparator.concept.hpp"
+#include "types/integer.type.hpp"
 
 // only for including header file
 #include "utils.hpp"
@@ -19,23 +20,21 @@ namespace mak
 	using mak::concepts::two_way_comparator;
 	using mak::types::generic_break_function;
 	using mak::types::default_break_function;
+	using mak::types::make_signed_t;
+	using mak::types::make_unsigned_t;
 
 	// for including header file
 	using mak::concepts::comparator;
 	using mak::types::default_comparator;
 	using mak::functions::no_need_to_sort;
 	using mak::functions::transform_to_2_way;
+	using mak::functions::prev_mod;
 }
 
 class mak::bubble_sort_family
 {
 
 protected:
-	template <std::input_iterator Input_It>
-	using make_unsigned_t = std::make_unsigned_t<std::iter_difference_t<Input_It>>;
-
-	template <std::input_iterator Input_It>
-	using make_signed_t = std::make_signed_t<std::iter_difference_t<Input_It>>;
 
 	template<
 		std::input_iterator Input_It,

@@ -50,12 +50,22 @@ public:
 		auto _sort_the_rest = sort_the_rest<Bidi_It, comparator_t>;
 
 		auto gap_sequence = get_gap_sequence(ranges::distance(first, --last));
+
 		for (auto const& gap : gap_sequence)
 		{
-			for (auto lower_limit = first; lower_limit != last; ++lower_limit)
+			// prev(gap - 1)
+			auto upper_limit = ranges::next(ranges::prev(last, gap));
+			auto sub_first = first;
+			auto sub_last = prev_mod(sub_first, last, gap);
+
+			while (sub_first != upper_limit)
 			{
-				auto upper_limit = ranges::prev(last, ranges::distance(lower_limit, last) % gap);
-				_sort_the_rest({ lower_limit, upper_limit, is_before_2_way, gap });
+				_sort_the_rest({ sub_first, sub_last, is_before_2_way, gap });
+
+				++sub_first;
+				sub_last = (sub_last != last) ?
+					ranges::next(sub_last) :
+					prev_mod(sub_first, last, gap);
 			}
 		}
 
