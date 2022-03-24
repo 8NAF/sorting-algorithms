@@ -28,7 +28,7 @@ int main()
 
 	tester.test_dynamic_array<0, 1, 10>(
 		new int[] {},
-		new int[] {3},
+		new int[] { 3 },
 		new int[] {-4, 1, 3, -5, 9, 9, 0, 2, 2, -5}
 	);
 
