@@ -17,6 +17,7 @@ namespace mak
 
 	namespace ranges = std::ranges;
 	using mak::concepts::two_way_comparator;
+	using mak::types::generic_break_function;
 	using mak::types::default_break_function;
 
 	// for including header file
@@ -39,20 +40,20 @@ protected:
 	template<
 		std::input_iterator Input_It,
 		two_way_comparator<std::iter_value_t<Input_It>> Comparator,
-		std::predicate<Input_It> Break_Function = default_break_function<Input_It>
+		std::predicate<Input_It> Break_Function = generic_break_function<Input_It>
 	> struct options {
 		Input_It first;
 		Input_It last;
 		Comparator is_before;
 		make_unsigned_t<Input_It> gap = 1;
 		make_unsigned_t<Input_It> step = gap;
-		Break_Function is_break_on_first_swap = [](auto) { return false; };
+		Break_Function is_break_on_first_swap = default_break_function;
 	};
 
 	template <
 		std::input_iterator Input_It,
 		two_way_comparator<std::iter_value_t<Input_It>> Comparator,
-		std::predicate<Input_It> Break_Function = default_break_function<Input_It>
+		std::predicate<Input_It> Break_Function = generic_break_function<Input_It>
 	> static void sort_the_rest(options<Input_It, Comparator, Break_Function> options)
 	{
 		auto [

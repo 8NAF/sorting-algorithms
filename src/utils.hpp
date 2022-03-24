@@ -1,6 +1,7 @@
 #pragma once
 
-#include "./concepts/comparator.concept.hpp"
+#include "concepts/comparator.concept.hpp"
+#include "types/default.type.hpp"
 
 #include <functional>
 #include <ranges>
@@ -12,6 +13,7 @@ namespace mak
 	namespace ranges = std::ranges;
 	using mak::concepts::comparator;
 	using mak::concepts::three_way_comparator;
+	using mak::types::generic_comparator;
 
 	namespace functions
 	{
@@ -35,7 +37,7 @@ namespace mak
 		template <
 			class Value,
 			comparator<Value> Comparator
-		> std::function<bool(Value, Value)> transform_to_2_way(Comparator&& comparator)
+		> generic_comparator<Value> transform_to_2_way(Comparator&& comparator)
 		{
 			return [&comparator](auto&& lhs, auto&& rhs) constexpr {
 				if constexpr (three_way_comparator<Comparator>) {

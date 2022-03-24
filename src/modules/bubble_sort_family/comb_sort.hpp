@@ -44,10 +44,7 @@ public:
 		if (no_need_to_sort(first, last)) return;
 
 		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = std::invoke_result_t<
-			decltype(transform_to_2_way<value_t, Comparator>),
-			Comparator
-		>;
+		using comparator_t = generic_comparator<value_t>;
 
 		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
 		auto _sort_the_rest = sort_the_rest<Bidi_It, comparator_t>;

@@ -26,17 +26,16 @@ struct mak::odd_even_sort : mak::bubble_sort_family
 		if (no_need_to_sort(first, last)) return;
 
 		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = std::invoke_result_t<
-			decltype(transform_to_2_way<value_t, Comparator>),
-			Comparator
-		>;
+		using comparator_t = generic_comparator<value_t>;
+		using break_function_t = generic_break_function<Bidi_It>;
 
 		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
 		auto _sort_the_rest = [&is_before_2_way]
 		(
 			Bidi_It first,
 			Bidi_It last,
-			std::function<bool(Bidi_It)> is_break_on_first_swap = [](Bidi_It) { return false; })
+			break_function_t is_break_on_first_swap = default_break_function
+			)
 		{
 			sort_the_rest<Bidi_It, comparator_t>({
 					.first = first,

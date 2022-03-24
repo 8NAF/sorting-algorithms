@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 // only for including header file
 #include "concepts/comparator.concept.hpp"
 #include "utils.hpp"
