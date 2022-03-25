@@ -1,6 +1,6 @@
 # Description
 
-Implementing sorting algorithms, using standard c++20 (g++11.2.0)
+Implementing sorting algorithms, using c++20 standard (g++ 11.2.0)
 
 # run test
 
