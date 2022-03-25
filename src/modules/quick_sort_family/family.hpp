@@ -64,8 +64,9 @@ protected:
 			++left, --right;
 		}
 	}
-};
 
+	friend class intro_sort;
+};
 
 namespace mak
 {
