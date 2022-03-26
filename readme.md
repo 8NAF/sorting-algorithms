@@ -19,3 +19,4 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 -   support `sentinel`
 -   add `insertion function` option for `insertion sort` family (to optimize for `std::list` & `std::forward_list`)
 -   optimize `comb sort`
+-   implementing BST
