@@ -51,8 +51,11 @@ struct Printer
 			s += std::to_string(value) + " ";
 		}
 
-		s += std::ranges::is_sorted(range, comparator) ? "(is sorted)" : "(is not sorted)";
-		std::cout << ((s.length() == 0) ? "<empty>" : s) << std::endl;
+		std::cout << ((s.length() == 0) ? "<empty>" : s) << " "
+			<< (std::ranges::is_sorted(range, comparator) ?
+				"(is sorted)" :
+				"(is not sorted)")
+			<< std::endl;
 	}
 
 	template <class E>
@@ -65,8 +68,11 @@ struct Printer
 			s += std::to_string(range[i]) + " ";
 		}
 
-		s += std::ranges::is_sorted(range, range + n, comparator) ? "(is sorted)" : "(is not sorted)";
-		std::cout << ((s.length() == 0) ? "<empty>" : s) << std::endl;
+		std::cout << ((s.length() == 0) ? "<empty>" : s) << " "
+			<< (std::ranges::is_sorted(range, range + n, comparator) ?
+				"(is sorted)" :
+				"(is not sorted)")
+			<< std::endl;
 	}
 };
 

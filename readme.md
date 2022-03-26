@@ -17,6 +17,8 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 -   handle case `gap > 1` in `binary search` function
 -   add `get gap sequence` option for `shell sort`
 -   support `sentinel`
--   add `insertion function` option for `insertion sort` family (to optimize for `std::list` & `std::forward_list`)
 -   optimize `comb sort`
 -   implementing BST
+-   update `tester` class
+- 	make `transform_to_2_way` as member class
+-	make type to snake_case

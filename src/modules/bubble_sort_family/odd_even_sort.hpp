@@ -7,58 +7,44 @@ namespace mak
 #define Bidi_It Bidirectional_Iterator
 #define Bidi_Rn Bidirectional_Range	
 
-	class odd_even_sort;
+	struct odd_even_sort;
 	using brick_sort = odd_even_sort;
 }
 
-struct mak::odd_even_sort : mak::bubble_sort_family
+struct mak::odd_even_sort : mak::base_sorting_algorithm<
+	mak::bubble_sort_family
+>
 {
 	template <
 		std::bidirectional_iterator Bidi_It,
-		comparator<std::iter_value_t<Bidi_It>> Comparator = default_comparator
+		iter_comparator<Bidi_It> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = generic_comparator<value_t>;
-		using break_function_t = generic_break_function<Bidi_It>;
+		auto family = family_t<Bidi_It, Comparator>(is_before, 2, 1);
 
-		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
-		auto _sort_the_rest = [&is_before_2_way]
-		(
-			Bidi_It first,
-			Bidi_It last,
-			break_function_t is_break_on_first_swap = default_break_function
-			)
+		auto sort_even = [&family](auto&& first, auto&& last, bool& not_swapped)
 		{
-			sort_the_rest<Bidi_It, comparator_t>({
+			family.sort_the_rest({
 					.first = first,
 					.last = last,
-					.is_before = is_before_2_way,
-					.gap = 2,
-					.step = 1,
-					.is_break_on_first_swap = is_break_on_first_swap
+					.is_break_on_first_swap = [&](auto const& current) {
+						not_swapped = false;
+						family.sort_the_rest({ ranges::next(current, 2), last });
+						return true;
+					}
 				});
 		};
-
-		auto sort_even = [&_sort_the_rest](auto&& first, auto&& last, bool& not_swapped)
-		{
-			auto is_break_on_first_swap = [&](auto&& current)
-			{
-				not_swapped = false;
-				_sort_the_rest(ranges::next(current, 2), last);
-				return true;
-			};
-			_sort_the_rest(first, last, is_break_on_first_swap);
-		};
-		auto sort_odd = [&sort_even, &_sort_the_rest](auto&& first, auto&& last, bool& not_swapped) {
-			not_swapped ? sort_even(first, last, not_swapped) : _sort_the_rest(first, last);
+		auto sort_odd = [&sort_even, &family](auto&& first, auto&& last, bool& not_swapped) {
+			not_swapped ?
+				sort_even(first, last, not_swapped) :
+				family.sort_the_rest({ first, last });
 		};
 
 		bool mod2 = ranges::distance(first, last) % 2;
@@ -74,11 +60,11 @@ struct mak::odd_even_sort : mak::bubble_sort_family
 
 	template <
 		ranges::bidirectional_range Bidi_Rn,
-		comparator<std::iter_value_t<Bidi_Rn>> Comparator = default_comparator
+		iter_comparator<Bidi_Rn> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_Rn& range,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		sort(ranges::begin(range), ranges::end(range), is_before);
@@ -86,12 +72,12 @@ struct mak::odd_even_sort : mak::bubble_sort_family
 
 	template <
 		class Pointer,
-		comparator<std::iter_value_t<Pointer>> Comparator = default_comparator
+		iter_comparator<Pointer> Comparator = default_comparator
 	> static void sort
 	(
 		Pointer pointer,
 		std::size_t n,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	) requires std::is_pointer_v<Pointer>
 	{
 		sort(pointer, pointer + n, is_before);

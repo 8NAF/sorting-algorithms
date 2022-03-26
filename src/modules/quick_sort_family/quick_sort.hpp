@@ -7,55 +7,55 @@ namespace mak
 #define Bidi_It Bidirectional_Iterator
 #define Bidi_Rn Bidirectional_Range
 
-	class quick_sort;
+	struct quick_sort;
 	using recursive_quick_sort = quick_sort;
 };
 
-class mak::quick_sort : mak::quick_sort_family
+class mak::quick_sort : mak::base_sorting_algorithm<
+	mak::quick_sort_family
+>
 {
 private:
 	template <
 		std::bidirectional_iterator Bidi_It,
-		two_way_comparator<std::iter_value_t<Bidi_It>> Comparator
+		iter_comparator<Bidi_It> Comparator
 	> static void recursive_sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before
+		family_t<Bidi_It, Comparator> const& family
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		auto pivot = partition(first, last, is_before);
-		recursive_sort(first, pivot, is_before);
-		recursive_sort(pivot, last, is_before);
+		auto pivot = family.partition(first, last);
+		recursive_sort(first, pivot, family);
+		recursive_sort(pivot, last, family);
 	}
 
 public:
 
 	template <
 		std::bidirectional_iterator Bidi_It,
-		comparator<std::iter_value_t<Bidi_It>> Comparator = default_comparator
+		iter_comparator<Bidi_It> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
-		using value_t = std::iter_value_t<Bidi_It>;
-		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
-
-		recursive_sort(first, last, is_before_2_way);
+		auto family = family_t<Bidi_It, Comparator>(is_before);
+		recursive_sort(first, last, family);
 	}
 
 	template <
 		ranges::bidirectional_range Bidi_Rn,
-		comparator<std::iter_value_t<Bidi_Rn>> Comparator = default_comparator
+		iter_comparator<Bidi_Rn> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_Rn& range,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		sort(ranges::begin(range), ranges::end(range), is_before);
@@ -63,12 +63,12 @@ public:
 
 	template <
 		class Pointer,
-		comparator<std::iter_value_t<Pointer>> Comparator = default_comparator
+		iter_comparator<Pointer> Comparator = default_comparator
 	> static void sort
 	(
 		Pointer pointer,
 		std::size_t n,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	) requires std::is_pointer_v<Pointer>
 	{
 		sort(pointer, pointer + n, is_before);

@@ -7,33 +7,30 @@ namespace mak
 #define Bidi_It Bidirectional_Iterator
 #define Bidi_Rn Bidirectional_Range
 
-	class bubble_sort;
+	struct bubble_sort;
 	using sinking_sort = bubble_sort;
 };
 
-struct mak::bubble_sort : mak::bubble_sort_family
+struct mak::bubble_sort : mak::base_sorting_algorithm<
+	mak::bubble_sort_family
+>
 {
 	template <
 		std::bidirectional_iterator Bidi_It,
-		comparator<std::iter_value_t<Bidi_It>> Comparator = default_comparator
+		iter_comparator<Bidi_It> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = generic_comparator<value_t>;
-
-		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
-		auto _find_last_swap = find_last_swap<Bidi_It, comparator_t>;
-
+		auto family = family_t<Bidi_It, Comparator>(is_before);
 		for (--last; first != last; )
 		{
-			auto last_swap = _find_last_swap({ first, last, is_before_2_way });
+			auto last_swap = family.find_last_swap(first, last);
 			if (bool not_swapped = (last_swap == first); not_swapped) return;
 			last = last_swap;
 		}
@@ -41,11 +38,11 @@ struct mak::bubble_sort : mak::bubble_sort_family
 
 	template <
 		ranges::bidirectional_range Bidi_Rn,
-		comparator<std::iter_value_t<Bidi_Rn>> Comparator = default_comparator
+		iter_comparator<Bidi_Rn> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_Rn& range,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		sort(ranges::begin(range), ranges::end(range), is_before);
@@ -53,12 +50,12 @@ struct mak::bubble_sort : mak::bubble_sort_family
 
 	template <
 		class Pointer,
-		comparator<std::iter_value_t<Pointer>> Comparator = default_comparator
+		iter_comparator<Pointer> Comparator = default_comparator
 	> static void sort
 	(
 		Pointer pointer,
 		std::size_t n,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	) requires std::is_pointer_v<Pointer>
 	{
 		sort(pointer, pointer + n, is_before);

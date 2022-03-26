@@ -15,9 +15,9 @@ namespace mak
 		using generic_comparator = std::function<bool(Value, Value)>;
 
 		template <std::input_iterator Input_It>
-		using generic_break_function = std::function<bool(Input_It)>;
+		using generic_break_function = std::function<bool(const Input_It)>;
 
-		constexpr auto default_break_function = [](auto) { return true; };
+		constexpr auto default_break_function = [](const auto) { return true; };
 	};
 
 #undef Input_It

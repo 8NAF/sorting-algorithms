@@ -1,14 +1,11 @@
 #pragma once
 
 #include "concepts/comparator.concept.hpp"
+#include "utils.hpp"
 
 // only for including header file
-#include "utils.hpp"
+#include "sorting_algorithm.abstract.hpp"
 #include "types/default.type.hpp"
-
-#include <iterator>
-#include <algorithm>
-#include <utility>
 
 namespace mak
 {
@@ -16,32 +13,38 @@ namespace mak
 #define Input_It Input_Iterator
 #define Bidi_It Bidirectional_Iterator
 
-	class heap_sort_family;
-
-	namespace ranges = std::ranges;
-	using mak::concepts::two_way_comparator;
+	using mak::functions::transform_to_2_way;
 
 	// for including header file
-	using mak::concepts::comparator;
+	using mak::concepts::iter_comparator;
 	using mak::types::default_comparator;
-	using mak::functions::no_need_to_sort;
-	using mak::functions::transform_to_2_way;
-}
-
-class mak::heap_sort_family
-{
-protected:
 
 	template<
-		std::input_iterator Input_It,
-		two_way_comparator<std::iter_value_t<Input_It>> Comparator
-	> static void heapify
-	(
-		Input_It first,
-		Input_It last,
-		Comparator is_before,
-		Input_It root
-	)
+		std::bidirectional_iterator Bidi_It,
+		iter_comparator<Bidi_It> Comparator
+	> class heap_sort_family;
+}
+
+template<
+	std::bidirectional_iterator Bidi_It,
+	mak::concepts::iter_comparator<Bidi_It> Comparator
+>
+class mak::heap_sort_family
+{
+private:
+
+	static inline auto transform_to_2_way =
+		transform_to_2_way<Bidi_It, Comparator>;
+
+	std::invoke_result_t<decltype(transform_to_2_way), Comparator> is_before;
+public:
+
+	heap_sort_family(Comparator const& is_before)
+		: is_before{ transform_to_2_way(is_before) }
+	{ }
+
+	// require input_iterator
+	void heapify(Bidi_It first, Bidi_It last, Bidi_It root) const
 	{
 		auto get_left_child = [&root](auto&& parent) {
 			return ranges::next(root, ranges::distance(root, parent) * 2 + 1);
@@ -76,15 +79,7 @@ protected:
 		*parent = std::move(stored_value);
 	}
 
-	template<
-		std::bidirectional_iterator Bidi_It,
-		two_way_comparator<std::iter_value_t<Bidi_It>> Comparator
-	> static void make_heap
-	(
-		Bidi_It first,
-		Bidi_It last,
-		Comparator is_before
-	)
+	void make_heap(Bidi_It first, Bidi_It last) const
 	{
 		// The number of nodes have children in a sequence with n elements is: trunc(n div 2)
 		// Since the array starts at 0, we have to subtract 1
@@ -95,25 +90,17 @@ protected:
 		};
 
 		for (auto current = last_node_has_child(first, last); current != first; --current) {
-			heapify(current, last, is_before, first);
+			heapify(current, last, first);
 		}
-		heapify(first, last, is_before, first);
+		heapify(first, last, first);
 	}
 
-	template<
-		std::bidirectional_iterator Bidi_It,
-		two_way_comparator<std::iter_value_t<Bidi_It>> Comparator
-	> static void do_sort
-	(
-		Bidi_It first,
-		Bidi_It last,
-		Comparator is_before
-	)
+	void do_sort(Bidi_It first, Bidi_It last) const
 	{
 		for (--last; last != first; --last)
 		{
 			ranges::iter_swap(first, last);
-			heapify(first, last, is_before, first);
+			heapify(first, last, first);
 		}
 	}
 };

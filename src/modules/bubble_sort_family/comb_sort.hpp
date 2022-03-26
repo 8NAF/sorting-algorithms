@@ -15,39 +15,34 @@ namespace mak
 	class comb_sort;
 };
 
-class mak::comb_sort : mak::bubble_sort_family
+class mak::comb_sort : mak::base_sorting_algorithm<
+	mak::bubble_sort_family
+>
 {
-
 private:
 
-	template <std::signed_integral Int>
-	static auto get_gap_sequence(Int first_value)
+	static auto get_gap_sequence(std::uint64_t first_value)
 	{
-		std::list<std::uint64_t> gap_sequence{ (std::uint64_t)first_value };
+		std::list gap_sequence{ first_value };
 		for (auto gap = (first_value * 10) / 13; gap >= 2; gap = (gap * 10) / 13)
 			gap_sequence.emplace_back(gap);
 		return gap_sequence;
 	}
 
 public:
-
 	template <
 		std::bidirectional_iterator Bidi_It,
-		comparator<std::iter_value_t<Bidi_It>> Comparator = default_comparator
+		iter_comparator<Bidi_It> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		using value_t = std::iter_value_t<Bidi_It>;
-		using comparator_t = generic_comparator<value_t>;
-
-		auto is_before_2_way = transform_to_2_way<value_t>(is_before);
-		auto _sort_the_rest = sort_the_rest<Bidi_It, comparator_t>;
+		auto family = family_t<Bidi_It, Comparator>(is_before);
 
 		auto d_first_last = ranges::distance(first, --last);
 		auto gap_sequence = get_gap_sequence(d_first_last);
@@ -65,7 +60,11 @@ public:
 					ranges::next(sub_last) :
 					ranges::prev(last, d_sub_first_Last % gap);
 
-				_sort_the_rest({ sub_first, sub_last, is_before_2_way, gap });
+				family.sort_the_rest({
+						.first = sub_first,
+						.last = sub_last,
+						.gap = gap
+					});
 
 				++sub_first;
 				--d_sub_first_Last;
@@ -77,11 +76,11 @@ public:
 
 	template <
 		ranges::bidirectional_range Bidi_Rn,
-		comparator<std::iter_value_t<Bidi_Rn>> Comparator = default_comparator
+		iter_comparator<Bidi_Rn> Comparator = default_comparator
 	> static void sort
 	(
 		Bidi_Rn& range,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	)
 	{
 		sort(ranges::begin(range), ranges::end(range), is_before);
@@ -89,12 +88,12 @@ public:
 
 	template <
 		class Pointer,
-		comparator<std::iter_value_t<Pointer>> Comparator = default_comparator
+		iter_comparator<Pointer> Comparator = default_comparator
 	> static void sort
 	(
 		Pointer pointer,
 		std::size_t n,
-		Comparator is_before = default_comparator()
+		Comparator is_before = {}
 	) requires std::is_pointer_v<Pointer>
 	{
 		sort(pointer, pointer + n, is_before);

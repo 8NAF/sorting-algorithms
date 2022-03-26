@@ -4,45 +4,48 @@
 #include "types/integer.type.hpp"
 
 // only for including header file
+#include "sorting_algorithm.abstract.hpp"
 #include "utils.hpp"
 #include "types/default.type.hpp"
 
-#include <iterator>
-#include <algorithm>
 #include <forward_list>
-#include <iostream>
 
 namespace mak
 {
-
-#define	Forward_It Forward_Iterator
 #define	Bidi_It Bidirectional_Iterator
 
-	class insertion_sort_family;
-
-	namespace ranges = std::ranges;
-
-	using mak::concepts::two_way_comparator;
+	using mak::functions::transform_to_2_way;
+	using mak::types::make_unsigned_t;
 
 	// for including header file
-	using mak::concepts::comparator;
+	using mak::concepts::iter_comparator;
 	using mak::types::default_comparator;
-	using mak::types::make_unsigned_t;
-	using mak::functions::no_need_to_sort;
-	using mak::functions::transform_to_2_way;
+
+	template<
+		std::bidirectional_iterator Bidi_It,
+		concepts::iter_comparator<Bidi_It> Comparator
+	> class insertion_sort_family;
 }
 
+template<
+	std::bidirectional_iterator Bidi_It,
+	mak::concepts::iter_comparator<Bidi_It> Comparator
+>
 class mak::insertion_sort_family {
 
 private:
 
-	template <std::bidirectional_iterator Bidi_It>
-	static void rotate_right
+	static inline auto transform_to_2_way =
+		transform_to_2_way<Bidi_It, Comparator>;
+
+	std::invoke_result_t<decltype(transform_to_2_way), Comparator> is_before;
+
+	void rotate_right
 	(
 		Bidi_It first,
 		Bidi_It last,
 		make_unsigned_t<Bidi_It> gap
-	)
+	) const
 	{
 		auto stored_value = ranges::iter_move(last);
 		for (auto current = last; current != first; ) {
@@ -53,57 +56,23 @@ private:
 		*first = std::move(stored_value);
 	}
 
-protected:
+public:
+
+	insertion_sort_family(Comparator const& is_before)
+		: is_before{ transform_to_2_way(is_before) }
+	{ }
 
 	template <
-		std::forward_iterator Forward_It,
-		two_way_comparator<std::iter_value_t<Forward_It>> Comparator
-	> static auto binary_search
-	(
-		Forward_It first,
-		Forward_It last,
-		Comparator is_before,
-		make_unsigned_t<Forward_It> gap
-	)
-	{
-		if (gap == 1) {
-			return ranges::upper_bound(first, last, *last, is_before);
-		}
-
-		// TODO: handle case - gap > 1
-		return first;
-	}
-
-	template <
-		std::bidirectional_iterator Bidi_It,
-		two_way_comparator<std::iter_value_t<Bidi_It>> Comparator
-	> static auto reverse_linear_search
+		std::invocable<
+		Bidi_It, Bidi_It, decltype(is_before), make_unsigned_t<Bidi_It>
+		> Search_Function
+	> void generic_insertion_sort
 	(
 		Bidi_It first,
 		Bidi_It last,
-		Comparator is_before,
-		make_unsigned_t<Bidi_It> gap
-	)
-	{
-		auto current = ranges::prev(last, gap);
-		while (current != first and is_before(*last, *current)) {
-			current = ranges::prev(current, gap);
-		}
-		return is_before(*last, *current) ? current : ranges::next(current, gap);
-	}
-
-	template <
-		std::bidirectional_iterator Bidi_It,
-		two_way_comparator<std::iter_value_t<Bidi_It>> Comparator,
-		std::regular_invocable<Bidi_It, Bidi_It, Comparator, make_unsigned_t<Bidi_It>> Search_Function
-	> static void generic_insertion_sort
-	(
-		Bidi_It first,
-		Bidi_It last,
-		Comparator is_before,
 		make_unsigned_t<Bidi_It> gap,
 		Search_Function search
-	)
+	) const
 	{
 		auto sub_last = ranges::next(first, gap);
 		auto sub_first = first;
@@ -119,10 +88,41 @@ protected:
 			sub_first = (d_first_sub_last % gap == 0) ? first : ranges::next(sub_first);
 		}
 	}
+
+	// requires Forward Iterator
+	static auto binary_search
+	(
+		Bidi_It first,
+		Bidi_It last,
+		decltype(is_before) is_before,
+		make_unsigned_t<Bidi_It> gap
+	)
+	{
+		if (gap == 1) {
+			return ranges::upper_bound(first, last, *last, is_before);
+		}
+
+		// TODO: handle case - gap > 1
+		return first;
+	}
+
+	static auto reverse_linear_search
+	(
+		Bidi_It first,
+		Bidi_It last,
+		decltype(is_before) is_before,
+		make_unsigned_t<Bidi_It> gap
+	)
+	{
+		auto current = ranges::prev(last, gap);
+		while (current != first and is_before(*last, *current)) {
+			current = ranges::prev(current, gap);
+		}
+		return is_before(*last, *current) ? current : ranges::next(current, gap);
+	}
 };
 
 namespace mak
 {
-#undef Forward_It
 #undef Bidi_It
 }

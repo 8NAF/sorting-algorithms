@@ -50,6 +50,7 @@
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
-		"any": "cpp"
+		"any": "cpp",
+		"stack": "cpp",
 	}
 }
