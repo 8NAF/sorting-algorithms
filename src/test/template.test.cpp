@@ -1,12 +1,11 @@
 #include "test/tester.hpp"
-#include "modules/bubble_sort_family/index.hpp"
+#include "modules/_/index.hpp"
 
-int main()
+void test_()
 {
+	Printer::print_color<colors::fg_blue>("\n[##########  SORT ##########]\n");
 
-	Printer::print_color<colors::fg_blue>("\n[########## COMB SORT ##########]\n");
-
-	auto tester = Tester<mak::bubble_sort>();
+	auto tester = Tester<mak::>();
 
 	std::initializer_list<int> i1 = {};
 	std::initializer_list<int> i2 = { 3 };

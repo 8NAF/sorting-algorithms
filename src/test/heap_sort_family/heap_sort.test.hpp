@@ -1,16 +1,15 @@
 #include "test/tester.hpp"
-#include "modules/pancake_sort_family/index.hpp"
+#include "modules/heap_sort_family/index.hpp"
 
-int main()
+void test_heap_sort()
 {
+	Printer::print_color<colors::fg_blue>("\n[########## HEAP SORT ##########]\n");
 
-	Printer::print_color<colors::fg_blue>("\n[########## PANCAKE SORT ##########]\n");
-
-	auto tester = Tester<mak::pancake_sort>();
+	auto tester = Tester<mak::heap_sort>();
 
 	std::initializer_list<int> i1 = {};
 	std::initializer_list<int> i2 = { 3 };
-	std::initializer_list<int> i3 = { -3, -4, -6, -7, -7, -8, -1, 0, -2, -5 };
+	std::initializer_list<int> i3 = { 9, 9, 2, -1, 5, 1, 7, 8, 0, 7 };
 	tester.test_std_vector(i1, i2, i3);
 	tester.test_std_list(i1, i2, i3);
 	tester.test_std_deque(i1, i2, i3);
@@ -19,18 +18,18 @@ int main()
 	tester.test_std_array(
 		std::array<int, 0>{},
 		std::to_array({ 3 }),
-		std::to_array({ -3, -4, -6, -7, -7, -8, -1, 0, -2, -5 })
+		std::to_array({ 9, 9, 2, -1, 5, 1, 7, 8, 0, 7 })
 	);
 
 	tester.test_static_array(
 		{ 3 },
-		{ -3, -4, -6, -7, -7, -8, -1, 0, -2, -5 }
+		{ 9, 9, 2, -1, 5, 1, 7, 8, 0, 7 }
 	);
 
 	tester.test_dynamic_array<0, 1, 10>(
 		new int[] {},
-		new int[] {3},
-		new int[] {-3, -4, -6, -7, -7, -8, -1, 0, -2, -5}
+		new int[] { 3 },
+		new int[] { 9, 9, 2, -1, 5, 1, 7, 8, 0, 7 }
 	);
 
 	Printer::print_color<colors::fg_blue>("\n[#################################]\n");

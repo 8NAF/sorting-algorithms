@@ -1,12 +1,12 @@
 #include "test/tester.hpp"
 #include "modules/insertion_sort_family/index.hpp"
 
-int main()
+void test_insertion_sort()
 {
 
-	Printer::print_color<colors::fg_blue>("\n[########## SHELL SORT ##########]\n");
+	Printer::print_color<colors::fg_blue>("\n[########## INSERTION SORT ##########]\n");
 
-	auto tester = Tester<mak::shell_sort>();
+	auto tester = Tester<mak::insertion_sort>();
 
 	std::initializer_list<int> i1 = {};
 	std::initializer_list<int> i2 = { 3 };

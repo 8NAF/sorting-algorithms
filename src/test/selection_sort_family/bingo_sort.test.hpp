@@ -1,16 +1,15 @@
 #include "test/tester.hpp"
-#include "modules/radix_sort_family/index.hpp"
+#include "modules/selection_sort_family/index.hpp"
 
-int main()
+void test_bingo_sort()
 {
+	Printer::print_color<colors::fg_blue>("\n[########## BINGO SORT ##########]\n");
 
-	Printer::print_color<colors::fg_blue>("\n[########## COUNTING SORT ##########]\n");
-
-	auto tester = Tester<mak::counting_sort>();
+	auto tester = Tester<mak::bingo_sort>();
 
 	std::initializer_list<int> i1 = {};
 	std::initializer_list<int> i2 = { 3 };
-	std::initializer_list<int> i3 = { -6, 9, 1, 0, 2, 7, -3, -5, -8, 4 };
+	std::initializer_list<int> i3 = { -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 };
 	tester.test_std_vector(i1, i2, i3);
 	tester.test_std_list(i1, i2, i3);
 	tester.test_std_deque(i1, i2, i3);
@@ -19,18 +18,18 @@ int main()
 	tester.test_std_array(
 		std::array<int, 0>{},
 		std::to_array({ 3 }),
-		std::to_array({ -6, 9, 1, 0, 2, 7, -3, -5, -8, 4 })
+		std::to_array({ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 })
 	);
 
 	tester.test_static_array(
 		{ 3 },
-		{ -6, 9, 1, 0, 2, 7, -3, -5, -8, 4 }
+		{ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 }
 	);
 
 	tester.test_dynamic_array<0, 1, 10>(
 		new int[] {},
 		new int[] { 3 },
-		new int[] {-6, 9, 1, 0, 2, 7, -3, -5, -8, 4}
+		new int[] {-4, 1, 3, -5, 9, 9, 0, 2, 2, -5}
 	);
 
 	Printer::print_color<colors::fg_blue>("\n[#################################]\n");

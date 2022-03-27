@@ -1,16 +1,15 @@
 #include "test/tester.hpp"
-#include "modules/selection_sort_family/index.hpp"
+#include "modules/quick_sort_family/index.hpp"
 
-int main()
+void test_iterative_quick_sort()
 {
+	Printer::print_color<colors::fg_blue>("\n[########## ITERATIVE QUICK SORT ##########]\n");
 
-	Printer::print_color<colors::fg_blue>("\n[########## DOUBLE SELECTION SORT ##########]\n");
-
-	auto tester = Tester<mak::double_selection_sort>();
+	auto tester = Tester<mak::iterative_quick_sort>();
 
 	std::initializer_list<int> i1 = {};
 	std::initializer_list<int> i2 = { 3 };
-	std::initializer_list<int> i3 = { -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 };
+	std::initializer_list<int> i3 = { 1, 2, 3, 4, 5, 5, 4, 3, 2, 1 };
 	tester.test_std_vector(i1, i2, i3);
 	tester.test_std_list(i1, i2, i3);
 	tester.test_std_deque(i1, i2, i3);
@@ -19,18 +18,18 @@ int main()
 	tester.test_std_array(
 		std::array<int, 0>{},
 		std::to_array({ 3 }),
-		std::to_array({ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 })
+		std::to_array({ 1, 2, 3, 4, 5, 5, 4, 3, 2, 1 })
 	);
 
 	tester.test_static_array(
 		{ 3 },
-		{ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 }
+		{ 1, 2, 3, 4, 5, 5, 4, 3, 2, 1 }
 	);
 
 	tester.test_dynamic_array<0, 1, 10>(
 		new int[] {},
 		new int[] { 3 },
-		new int[] {-4, 1, 3, -5, 9, 9, 0, 2, 2, -5}
+		new int[] {1, 2, 3, 4, 5, 5, 4, 3, 2, 1 }
 	);
 
 	Printer::print_color<colors::fg_blue>("\n[#################################]\n");

@@ -1,9 +1,8 @@
 #include "test/tester.hpp"
 #include "modules/selection_sort_family/index.hpp"
 
-int main()
+void test_selection_sort()
 {
-
 	Printer::print_color<colors::fg_blue>("\n[########## SELECTION SORT ##########]\n");
 
 	auto tester = Tester<mak::selection_sort>();

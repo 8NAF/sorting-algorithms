@@ -1,7 +1,7 @@
 #include "test/tester.hpp"
 #include "modules/insertion_sort_family/index.hpp"
 
-int main()
+void test_binary_insertion_sort()
 {
 
 	Printer::print_color<colors::fg_blue>("\n[########## BINARY INSERTION SORT ##########]\n");
