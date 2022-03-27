@@ -4,7 +4,7 @@
 
 namespace mak
 {
-#define Input_It Input_Iterator
+#define input_it_t input_iterator_t
 
 	namespace ranges = std::ranges;
 
@@ -15,17 +15,17 @@ namespace mak
 
 		constexpr base_sorting_algorithm() noexcept;
 
-		template <class... Args>
-		using family_t = Family<Args...>;
+		template <class... arg_ts>
+		using family_t = Family<arg_ts...>;
 
-		template <std::input_iterator Input_It>
+		template <std::input_iterator input_it_t>
 		static constexpr bool no_need_to_sort
 		(
-			Input_It first,
-			Input_It last
+			input_it_t first,
+			input_it_t last
 		)
 		{
-			if constexpr (std::random_access_iterator<Input_It>) {
+			if constexpr (std::random_access_iterator<input_it_t>) {
 				return ranges::distance(first, last) < 2;
 			}
 
@@ -33,5 +33,5 @@ namespace mak
 		}
 	};
 
-#undef Input_It
+#undef input_it_t
 }

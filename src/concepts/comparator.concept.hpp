@@ -7,23 +7,26 @@ namespace mak
 {
 	namespace concepts
 	{
-		template <class F>
-		concept three_way_comparator = std::predicate<F, std::partial_ordering>;
+		template <class func_t>
+		concept three_way_comparator = std::predicate<
+			func_t,
+			std::partial_ordering
+		>;
 
-		template <class F, class T>
-		concept two_way_comparator = std::predicate<F, T, T>;
+		template <class func_t, class val_t>
+		concept two_way_comparator = std::predicate<func_t, val_t, val_t>;
 
-		template <class F, class It>
+		template <class func_t, class iter_t>
 		concept iter_two_way_comparator =
-			(std::input_or_output_iterator<It> || std::ranges::range<It>) &&
-			two_way_comparator<F, std::iter_value_t<It>>;
+			(std::input_iterator<iter_t> || std::ranges::range<iter_t>) &&
+			two_way_comparator<func_t, std::iter_value_t<iter_t>>;
 
-		template <class F, class T>
-		concept comparator = three_way_comparator<F> ||
-			two_way_comparator<F, T>;
+		template <class func_t, class val_t>
+		concept comparator = three_way_comparator<func_t> ||
+			two_way_comparator<func_t, val_t>;
 
-		template <class F, class It>
-		concept iter_comparator = three_way_comparator<F> ||
-			iter_two_way_comparator<F, It>;
+		template <class func_t, class iter_t>
+		concept iter_comparator = three_way_comparator<func_t> ||
+			iter_two_way_comparator<func_t, iter_t>;
 	}
 }

@@ -4,8 +4,8 @@
 
 namespace mak
 {
-#define Bidi_It Bidirectional_Iterator
-#define Bidi_Rn Bidirectional_Range
+#define iterator_t bidirectional_iterator_t
+#define range_t bidirectional_range_t
 
 	struct quick_sort;
 	using recursive_quick_sort = quick_sort;
@@ -17,13 +17,13 @@ class mak::quick_sort : mak::base_sorting_algorithm<
 {
 private:
 	template <
-		std::bidirectional_iterator Bidi_It,
-		iter_comparator<Bidi_It> Comparator
+		quick_sort_family_cp::iterator iterator_t,
+		iter_comparator<iterator_t> comparator_t
 	> static void recursive_sort
 	(
-		Bidi_It first,
-		Bidi_It last,
-		family_t<Bidi_It, Comparator> const& family
+		iterator_t first,
+		iterator_t last,
+		family_t<iterator_t, comparator_t> const& family
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
@@ -36,40 +36,40 @@ private:
 public:
 
 	template <
-		std::bidirectional_iterator Bidi_It,
-		iter_comparator<Bidi_It> Comparator = default_comparator
+		quick_sort_family_cp::iterator iterator_t,
+		iter_comparator<iterator_t> comparator_t = default_comparator
 	> static void sort
 	(
-		Bidi_It first,
-		Bidi_It last,
-		Comparator is_before = {}
+		iterator_t first,
+		iterator_t last,
+		comparator_t is_before = {}
 	)
 	{
-		auto family = family_t<Bidi_It, Comparator>(is_before);
+		auto family = family_t<iterator_t, comparator_t>(is_before);
 		recursive_sort(first, last, family);
 	}
 
 	template <
-		ranges::bidirectional_range Bidi_Rn,
-		iter_comparator<Bidi_Rn> Comparator = default_comparator
+		quick_sort_family_cp::range range_t,
+		iter_comparator<range_t> comparator_t = default_comparator
 	> static void sort
 	(
-		Bidi_Rn& range,
-		Comparator is_before = {}
+		range_t& range,
+		comparator_t is_before = {}
 	)
 	{
 		sort(ranges::begin(range), ranges::end(range), is_before);
 	}
 
 	template <
-		class Pointer,
-		iter_comparator<Pointer> Comparator = default_comparator
+		class pointer_t,
+		iter_comparator<pointer_t> comparator_t = default_comparator
 	> static void sort
 	(
-		Pointer pointer,
+		pointer_t pointer,
 		std::size_t n,
-		Comparator is_before = {}
-	) requires std::is_pointer_v<Pointer>
+		comparator_t is_before = {}
+	) requires std::is_pointer_v<pointer_t>
 	{
 		sort(pointer, pointer + n, is_before);
 	}
@@ -77,6 +77,6 @@ public:
 
 namespace mak
 {
-#undef Bidi_It
-#undef Bidi_Rn
+#undef iterator_t
+#undef range_t
 }

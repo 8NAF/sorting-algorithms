@@ -14,8 +14,8 @@
 
 namespace mak
 {
-
-#define Bidi_It Bidirectional_Iterator
+#define iterator_t bidirectional_iterator_t
+#define range_t bidirectional_range_t
 
 	using mak::functions::midpoint;
 
@@ -25,15 +25,23 @@ namespace mak
 	using mak::types::default_comparator;
 	using mak::functions::transform_to_2_way;
 
+	namespace quick_sort_family_cp
+	{
+		template <class iterator_t>
+		concept iterator = std::bidirectional_iterator<iterator_t>;
+		template <class range_t>
+		concept range = ranges::bidirectional_range<range_t>;
+	}
+
 	template<
-		std::bidirectional_iterator Bidi_It,
-		iter_comparator<Bidi_It> Comparator
+		quick_sort_family_cp::iterator iterator_t,
+		iter_comparator<iterator_t> comparator_t
 	> class quick_sort_family;
 }
 
 template<
-	std::bidirectional_iterator Bidi_It,
-	mak::concepts::iter_comparator<Bidi_It> Comparator
+	mak::quick_sort_family_cp::iterator iterator_t,
+	mak::concepts::iter_comparator<iterator_t> comparator_t
 >
 class mak::quick_sort_family
 {
@@ -43,17 +51,17 @@ private:
 	friend class intro_sort;
 
 	static inline auto transform_to_2_way =
-		transform_to_2_way<Bidi_It, Comparator>;
+		transform_to_2_way<iterator_t, comparator_t>;
 
-	std::invoke_result_t<decltype(transform_to_2_way), Comparator> is_before;
+	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
 
 public:
 
-	quick_sort_family(Comparator const& is_before)
+	quick_sort_family(comparator_t const& is_before)
 		: is_before{ transform_to_2_way(is_before) }
 	{ }
 
-	auto partition(Bidi_It first, Bidi_It last) const
+	auto partition(iterator_t first, iterator_t last) const
 	{
 		auto middle_value = *midpoint(first, last);
 		auto [left, right] = std::pair(first, ranges::prev(last));
@@ -80,5 +88,6 @@ public:
 
 namespace mak
 {
-#undef Bidi_It
+#undef iterator_t
+#undef range_t
 }

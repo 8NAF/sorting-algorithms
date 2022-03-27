@@ -16,6 +16,14 @@ namespace mak
 	using mak::types::default_comparator;
 	using mak::functions::transform_to_2_way;
 
+	namespace pancake_sort_family_cp
+	{
+		template <class bidirectional_iterator_t>
+		concept iterator = std::bidirectional_iterator<bidirectional_iterator_t>;
+		template <class bidirectional_range_t>
+		concept range = ranges::bidirectional_range<bidirectional_range_t>;
+	}
+
 	template <class T>
 	struct pancake_sort_family;
 

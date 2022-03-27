@@ -5,20 +5,20 @@
 
 namespace mak
 {
-#define Input_It Input_Iterator
+#define input_it_t input_iterator_t
 
 	namespace types
 	{
 		using default_comparator = std::ranges::less;
 
-		template <class Value>
-		using generic_comparator = std::function<bool(Value, Value)>;
+		template <class value_t>
+		using generic_comparator = std::function<bool(value_t, value_t)>;
 
-		template <std::input_iterator Input_It>
-		using generic_break_function = std::function<bool(const Input_It)>;
+		template <std::input_iterator input_it_t>
+		using generic_break_function = std::function<bool(const input_it_t)>;
 
 		constexpr auto default_break_function = [](const auto) { return true; };
 	};
 
-#undef Input_It
+#undef input_it_t
 }

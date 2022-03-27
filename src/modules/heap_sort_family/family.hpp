@@ -9,9 +9,8 @@
 
 namespace mak
 {
-
-#define Input_It Input_Iterator
-#define Bidi_It Bidirectional_Iterator
+#define iterator_t bidirectional_iterator_t
+#define range_t bidirectional_range_t
 
 	using mak::functions::transform_to_2_way;
 
@@ -19,32 +18,40 @@ namespace mak
 	using mak::concepts::iter_comparator;
 	using mak::types::default_comparator;
 
+	namespace heap_sort_family_cp
+	{
+		template <class iterator_t>
+		concept iterator = std::bidirectional_iterator<iterator_t>;
+		template <class range_t>
+		concept range = ranges::bidirectional_range<range_t>;
+	}
+
 	template<
-		std::bidirectional_iterator Bidi_It,
-		iter_comparator<Bidi_It> Comparator
+		heap_sort_family_cp::iterator iterator_t,
+		iter_comparator<iterator_t> comparator_t
 	> class heap_sort_family;
 }
 
 template<
-	std::bidirectional_iterator Bidi_It,
-	mak::concepts::iter_comparator<Bidi_It> Comparator
+	mak::heap_sort_family_cp::iterator iterator_t,
+	mak::concepts::iter_comparator<iterator_t> comparator_t
 >
 class mak::heap_sort_family
 {
 private:
-
 	static inline auto transform_to_2_way =
-		transform_to_2_way<Bidi_It, Comparator>;
+		transform_to_2_way<iterator_t, comparator_t>;
 
-	std::invoke_result_t<decltype(transform_to_2_way), Comparator> is_before;
+	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
+
 public:
 
-	heap_sort_family(Comparator const& is_before)
+	heap_sort_family(comparator_t const& is_before)
 		: is_before{ transform_to_2_way(is_before) }
 	{ }
 
-	// require input_iterator
-	void heapify(Bidi_It first, Bidi_It last, Bidi_It root) const
+	// requires Input Iterator
+	void heapify(iterator_t first, iterator_t last, iterator_t root) const
 	{
 		auto get_left_child = [&root](auto&& parent) {
 			return ranges::next(root, ranges::distance(root, parent) * 2 + 1);
@@ -79,7 +86,7 @@ public:
 		*parent = std::move(stored_value);
 	}
 
-	void make_heap(Bidi_It first, Bidi_It last) const
+	void make_heap(iterator_t first, iterator_t last) const
 	{
 		// The number of nodes have children in a sequence with n elements is: trunc(n div 2)
 		// Since the array starts at 0, we have to subtract 1
@@ -95,7 +102,7 @@ public:
 		heapify(first, last, first);
 	}
 
-	void do_sort(Bidi_It first, Bidi_It last) const
+	void do_sort(iterator_t first, iterator_t last) const
 	{
 		for (--last; last != first; --last)
 		{
@@ -107,6 +114,6 @@ public:
 
 namespace mak
 {
-#undef Input_It
-#undef Bidi_It
+#undef iterator_t
+#undef range_t
 }

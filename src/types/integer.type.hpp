@@ -4,16 +4,16 @@
 
 namespace mak
 {
-#define Input_It Input_Iterator
+#define input_it_t input_iterator_t
 
 	namespace types
 	{
-		template <std::input_iterator Input_It>
-		using make_unsigned_t = std::make_unsigned_t<std::iter_difference_t<Input_It>>;
+		template <std::input_iterator input_it_t>
+		using make_unsigned_t = std::make_unsigned_t<std::iter_difference_t<input_it_t>>;
 
-		template <std::input_iterator Input_It>
-		using make_signed_t = std::make_signed_t<std::iter_difference_t<Input_It>>;
+		template <std::input_iterator input_it_t>
+		using make_signed_t = std::make_signed_t<std::iter_difference_t<input_it_t>>;
 	};
 
-#undef Input_It
+#undef input_it_t
 }

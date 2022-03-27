@@ -12,7 +12,8 @@
 
 namespace mak
 {
-#define	Bidi_It Bidirectional_Iterator
+#define	iterator_t bidirectional_iterator_t
+#define range_t bidirectional_range_t
 
 	using mak::functions::transform_to_2_way;
 	using mak::types::make_unsigned_t;
@@ -21,30 +22,38 @@ namespace mak
 	using mak::concepts::iter_comparator;
 	using mak::types::default_comparator;
 
+	namespace insertion_sort_family_cp
+	{
+		template <class iterator_t>
+		concept iterator = std::bidirectional_iterator<iterator_t>;
+		template <class range_t>
+		concept range = ranges::bidirectional_range<range_t>;
+	}
+
 	template<
-		std::bidirectional_iterator Bidi_It,
-		concepts::iter_comparator<Bidi_It> Comparator
+		insertion_sort_family_cp::iterator iterator_t,
+		concepts::iter_comparator<iterator_t> comparator_t
 	> class insertion_sort_family;
 }
 
 template<
-	std::bidirectional_iterator Bidi_It,
-	mak::concepts::iter_comparator<Bidi_It> Comparator
+	mak::insertion_sort_family_cp::iterator iterator_t,
+	mak::concepts::iter_comparator<iterator_t> comparator_t
 >
 class mak::insertion_sort_family {
 
 private:
 
 	static inline auto transform_to_2_way =
-		transform_to_2_way<Bidi_It, Comparator>;
+		transform_to_2_way<iterator_t, comparator_t>;
 
-	std::invoke_result_t<decltype(transform_to_2_way), Comparator> is_before;
+	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
 
 	void rotate_right
 	(
-		Bidi_It first,
-		Bidi_It last,
-		make_unsigned_t<Bidi_It> gap
+		iterator_t first,
+		iterator_t last,
+		make_unsigned_t<iterator_t> gap
 	) const
 	{
 		auto stored_value = ranges::iter_move(last);
@@ -58,19 +67,19 @@ private:
 
 public:
 
-	insertion_sort_family(Comparator const& is_before)
+	insertion_sort_family(comparator_t const& is_before)
 		: is_before{ transform_to_2_way(is_before) }
 	{ }
 
 	template <
 		std::invocable<
-		Bidi_It, Bidi_It, decltype(is_before), make_unsigned_t<Bidi_It>
+		iterator_t, iterator_t, decltype(is_before), make_unsigned_t<iterator_t>
 		> Search_Function
 	> void generic_insertion_sort
 	(
-		Bidi_It first,
-		Bidi_It last,
-		make_unsigned_t<Bidi_It> gap,
+		iterator_t first,
+		iterator_t last,
+		make_unsigned_t<iterator_t> gap,
 		Search_Function search
 	) const
 	{
@@ -92,10 +101,10 @@ public:
 	// requires Forward Iterator
 	static auto binary_search
 	(
-		Bidi_It first,
-		Bidi_It last,
+		iterator_t first,
+		iterator_t last,
 		decltype(is_before) is_before,
-		make_unsigned_t<Bidi_It> gap
+		make_unsigned_t<iterator_t> gap
 	)
 	{
 		if (gap == 1) {
@@ -108,10 +117,10 @@ public:
 
 	static auto reverse_linear_search
 	(
-		Bidi_It first,
-		Bidi_It last,
+		iterator_t first,
+		iterator_t last,
 		decltype(is_before) is_before,
-		make_unsigned_t<Bidi_It> gap
+		make_unsigned_t<iterator_t> gap
 	)
 	{
 		auto current = ranges::prev(last, gap);
@@ -124,5 +133,6 @@ public:
 
 namespace mak
 {
-#undef Bidi_It
+#undef iterator_t
+#undef range_t
 }
