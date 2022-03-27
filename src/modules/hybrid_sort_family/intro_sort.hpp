@@ -7,26 +7,25 @@
 
 namespace mak
 {
-#define iterator_t bidirectional_iterator_t
-#define range_t bidirectional_range_t
-
 	class intro_sort;
 	using introspective_sort = intro_sort;
-};
+}
 
 class mak::intro_sort : mak::base_sorting_algorithm<
-	mak::hybrid_sort_family
+	mak::intro_sort,
+	mak::hybrid_sort_family,
+	std::bidirectional_iterator_tag
 >
 {
 private:
 	template <
-		hybrid_sort_family_cp::iterator iterator_t,
-		iter_comparator<iterator_t> comparator_t
+		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		iter_comparator<bidirectional_iterator_t> comparator_t
 	> static void recursive_sort
 	(
-		iterator_t first,
-		iterator_t last,
-		quick_sort_family<iterator_t, comparator_t> const& qs_family,
+		bidirectional_iterator_t first,
+		bidirectional_iterator_t last,
+		quick_sort_family<bidirectional_iterator_t, comparator_t> const& qs_family,
 		std::size_t& max_depth
 	)
 	{
@@ -48,52 +47,25 @@ private:
 	}
 
 public:
+	using base_sorting_algorithm::sort;
+
 	template <
-		hybrid_sort_family_cp::iterator iterator_t,
-		iter_comparator<iterator_t> comparator_t = default_comparator
+		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		iter_comparator<bidirectional_iterator_t> comparator_t = default_comparator
 	> static void sort
 	(
-		iterator_t first,
-		iterator_t last,
+		bidirectional_iterator_t first,
+		bidirectional_iterator_t last,
 		comparator_t is_before = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		auto qs_family = quick_sort_family<iterator_t, comparator_t>(is_before);
+		auto qs_family = quick_sort_family<
+			bidirectional_iterator_t, comparator_t
+		>(is_before);
 		std::size_t max_depth = std::log(ranges::distance(first, last)) * 2;
 
 		recursive_sort(first, last, qs_family, max_depth);
 	}
-
-	template <
-		hybrid_sort_family_cp::range range_t,
-		iter_comparator<range_t> comparator_t = default_comparator
-	> static void sort
-	(
-		range_t& range,
-		comparator_t is_before = {}
-	)
-	{
-		sort(ranges::begin(range), ranges::end(range), is_before);
-	}
-
-	template <
-		class pointer_t,
-		iter_comparator<pointer_t> comparator_t = default_comparator
-	> static void sort
-	(
-		pointer_t pointer,
-		std::size_t n,
-		comparator_t is_before = {}
-	) requires std::is_pointer_v<pointer_t>
-	{
-		sort(pointer, pointer + n, is_before);
-	}
 };
-
-namespace mak
-{
-#undef iterator_t
-#undef range_t
-}

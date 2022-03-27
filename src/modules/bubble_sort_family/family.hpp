@@ -1,51 +1,37 @@
 #pragma once
 
-#include "concepts/comparator.concept.hpp"
-#include "types/integer.type.hpp"
-
-// only for including header file
 #include "sorting_algorithm.abstract.hpp"
-#include "utils.hpp"
-#include "types/default.type.hpp"
+#include "types/integer.type.hpp"
 
 #include <list>
 #include <optional>
-#include <iostream>
 
 namespace mak
 {
-#define input_it_t input_iterator_t
-
-	using mak::concepts::iter_two_way_comparator;
-	using mak::concepts::iter_comparator;
-	using mak::types::generic_break_function;
-	using mak::types::default_break_function;
 	using mak::types::make_signed_t;
 	using mak::types::make_unsigned_t;
-	using mak::functions::transform_to_2_way;
-
-	// for including header file
-	using mak::types::default_comparator;
 
 	template<
-		std::input_iterator input_it_t,
-		iter_comparator<input_it_t> comparator_t
+		std::forward_iterator iterator_t,
+		iter_comparator<iterator_t> comparator_t
 	> class bubble_sort_family;
 }
 
 template<
-	std::input_iterator input_it_t,
-	mak::concepts::iter_comparator<input_it_t> comparator_t
+	std::forward_iterator iterator_t,
+	mak::concepts::iter_comparator<iterator_t> comparator_t
 >
 class mak::bubble_sort_family
 {
 public:
-	using unsigned_opt_t = std::optional<make_unsigned_t<input_it_t>>;
+	using unsigned_opt_t = std::optional<make_unsigned_t<iterator_t>>;
 
 private:
+	using forward_iterator_t = iterator_t;
+	using bidirectional_iterator_t = iterator_t;
 
 	static inline auto transform_to_2_way =
-		transform_to_2_way<input_it_t, comparator_t>;
+		transform_to_2_way<iterator_t, comparator_t>;
 
 	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
 	unsigned_opt_t gap_opt;
@@ -80,17 +66,18 @@ public:
 	{ }
 
 	template<
-		std::predicate<const input_it_t> break_function_t
+		std::predicate<const iterator_t> break_function_t
 	> struct options {
-		input_it_t first;
-		input_it_t last;
+		iterator_t first;
+		iterator_t last;
 		unsigned_opt_t gap_opt = std::nullopt;
 		unsigned_opt_t step_opt = std::nullopt;
 		break_function_t is_break_on_first_swap = default_break_function;
 	};
 
 	template <
-		std::predicate<const input_it_t> break_function_t = generic_break_function<input_it_t>
+		std::predicate<const forward_iterator_t> break_function_t
+		= generic_break_function<forward_iterator_t>
 	> void sort_the_rest(options<break_function_t> options) const
 	{
 		auto [
@@ -119,8 +106,8 @@ public:
 
 	auto find_last_swap
 	(
-		input_it_t first,
-		input_it_t last,
+		forward_iterator_t first,
+		forward_iterator_t last,
 		unsigned_opt_t gap_opt = std::nullopt
 	) const
 	{
@@ -145,11 +132,11 @@ public:
 
 	auto reverse_find_last_swap
 	(
-		input_it_t first,
-		input_it_t last,
+		bidirectional_iterator_t first,
+		bidirectional_iterator_t last,
 		unsigned_opt_t gap_opt = std::nullopt
 	) const
-		requires std::bidirectional_iterator<input_it_t>
+		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
 		auto gap = get_first_not_nullopt(gap_opt, this->gap_opt, 1);
 
@@ -170,8 +157,3 @@ public:
 		return last_swap;
 	}
 };
-
-namespace mak
-{
-#undef input_it_t
-}
