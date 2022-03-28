@@ -11,24 +11,24 @@ namespace mak
 struct mak::odd_even_sort : mak::base_sorting_algorithm<
 	mak::odd_even_sort,
 	mak::bubble_sort_family,
-	std::bidirectional_iterator_tag
+	std::forward_iterator_tag
 >
 {
 	using base_sorting_algorithm::sort;
 
 	template <
-		tag_to_iterator<tag_t> bidirectional_iterator_t,
-		iter_comparator<bidirectional_iterator_t> comparator_t = default_comparator
+		tag_to_iterator<tag_t> forward_iterator_t,
+		iter_comparator<forward_iterator_t> comparator_t = default_comparator
 	> static void sort
 	(
-		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
+		forward_iterator_t first,
+		forward_iterator_t last,
 		comparator_t is_before = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		auto family = family_t<bidirectional_iterator_t, comparator_t>(is_before, 2, 1);
+		auto family = family_t<forward_iterator_t, comparator_t>(is_before, 2, 1);
 
 		auto sort_even = [&family](auto&& first, auto&& last, bool& not_swapped)
 		{
@@ -49,8 +49,11 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 		};
 
 		bool mod2 = ranges::distance(first, last) % 2;
-		auto [first_even, last_even] = std::pair(first, ranges::prev(last, mod2));
-		auto [first_odd, last_odd] = std::pair(ranges::next(first), ranges::prev(last, not mod2));
+		auto [last_even, last_odd] = std::pair(
+			prev(first, last, mod2),
+			prev(first, last, not mod2)
+		);
+		auto [first_even, first_odd] = std::pair(first, ranges::next(first));
 
 		for (bool not_swapped = true; true; not_swapped = true) {
 			sort_even(first_even, last_even, not_swapped);

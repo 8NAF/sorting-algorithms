@@ -10,8 +10,6 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 
 # todo
 
--   support `forward iterator` for `bubble sort`
--   support `forward iterator` for `odd even sort`
 -   improve `make_heap`
 -   support `projection`
 -   handle case `gap > 1` in `binary search` function

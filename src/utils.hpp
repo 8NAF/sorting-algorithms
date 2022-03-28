@@ -4,7 +4,7 @@
 #include "types/default.type.hpp"
 
 #include <functional>
-#include <ranges>
+#include <iterator>
 
 namespace mak
 {
@@ -41,6 +41,26 @@ namespace mak
 		template <std::input_iterator input_it_t>
 		auto midpoint(input_it_t first, input_it_t last) {
 			return ranges::next(first, ranges::distance(first, last) / 2);
+		}
+
+		template <std::input_iterator input_it_t>
+		auto prev
+		(
+			input_it_t from,
+			input_it_t target,
+			std::iter_difference_t<input_it_t> n = 1
+		)
+		{
+			if (n == 0) {
+				return target;
+			}
+
+			if constexpr (std::bidirectional_iterator<input_it_t>) {
+				return ranges::prev(target, n);
+			}
+			else {
+				return ranges::next(from, ranges::distance(from, target) - n);
+			}
 		}
 	}
 

@@ -10,6 +10,7 @@ namespace mak
 {
 	using mak::types::make_signed_t;
 	using mak::types::make_unsigned_t;
+	using mak::functions::prev;
 
 	template<
 		std::forward_iterator iterator_t,
