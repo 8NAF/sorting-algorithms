@@ -19,6 +19,3 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 -   support `sentinel`
 -   optimize `comb sort`
 -   implementing BST
--   update `tester` class
-- 	make `transform_to_2_way` as member class
--	make `sort` as member class

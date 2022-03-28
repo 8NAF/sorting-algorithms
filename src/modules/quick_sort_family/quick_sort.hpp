@@ -8,7 +8,7 @@ namespace mak
 	using recursive_quick_sort = quick_sort;
 }
 
-class mak::quick_sort : mak::base_sorting_algorithm<
+class mak::quick_sort : public mak::base_sorting_algorithm<
 	mak::quick_sort,
 	mak::quick_sort_family,
 	std::bidirectional_iterator_tag

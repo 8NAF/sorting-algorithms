@@ -8,6 +8,14 @@
 #include <deque>
 #include <forward_list>
 #include <iterator>
+#include <span>
+#include <map>
+#include <memory>
+#include <string_view>
+#include <ranges>
+
+namespace ranges = std::ranges;
+namespace views = std::views;
 
 enum colors
 {
@@ -41,7 +49,7 @@ struct Printer
 		return ((std::cout << open << args << ' ' << close), ...);
 	}
 
-	static void print_range(std::ranges::input_range auto&& range, auto comparator)
+	static void print_range(ranges::input_range auto&& range)
 	{
 		auto s = std::string();
 
@@ -51,116 +59,178 @@ struct Printer
 			s += std::to_string(value) + " ";
 		}
 
-		std::cout << ((s.length() == 0) ? "<empty>" : s) << " "
-			<< (std::ranges::is_sorted(range, comparator) ?
-				"(is sorted)" :
-				"(is not sorted)")
-			<< std::endl;
-	}
-
-	template <class E>
-	static void print_range(E* range, auto comparator, size_t n)
-	{
-		auto s = std::string();
-		for (size_t i = 0; i < n; ++i)
-		{
-			//TODO: use std::format
-			s += std::to_string(range[i]) + " ";
-		}
-
-		std::cout << ((s.length() == 0) ? "<empty>" : s) << " "
-			<< (std::ranges::is_sorted(range, range + n, comparator) ?
-				"(is sorted)" :
-				"(is not sorted)")
-			<< std::endl;
+		std::cout << ((s.length() == 0) ? "<empty>" : s) << std::endl;
 	}
 };
 
 template <class S>
 class Tester
 {
-
 private:
-
-	template<class Range, class... Nums>
-		requires (std::unsigned_integral<Nums>&& ...) && (sizeof...(Nums) <= 1)
-	void print_result(Range&& sample, size_t ordinal_number, Nums... nums)
+	static auto is_passed(auto&& original_stored_number, auto&& actual, auto&& comparator)
 	{
-		Printer::print_color<colors::fg_cyan>(
-			"\n~~~ sample",
-			ordinal_number,
-			"~~~"
-			);
-
-		std::cout << "\noriginal: ";
-		Printer::print_range(sample, std::ranges::equal_to(), nums...);
-
-		S::sort(sample, nums...);
-		std::cout << "     asc: ";
-		Printer::print_range(sample, std::ranges::less(), nums...);
-
-		S::sort(sample, nums..., std::is_gt);
-		std::cout << "    desc: ";
-		Printer::print_range(sample, std::ranges::greater(), nums...);
+		std::remove_reference_t<decltype(original_stored_number)> actual_stored_number;
+		for (auto&& value : actual) {
+			++actual_stored_number[value];
+		}
+		return original_stored_number == actual_stored_number &&
+			ranges::is_sorted(actual, comparator);
 	}
 
-	template <class... Samples>
-	void test(std::string name, Samples&&... samples)
+	template<class Range, class... Number>
+		requires (std::unsigned_integral<Number> && ...) && (sizeof...(Number) <= 1)
+	void execute_all_test_cases
+	(
+		std::string const& range_name,
+		Range& sample,
+		Number... n
+	)
 	{
-		Printer::print_color<colors::fg_yellow>(
-			"\n[----------",
-			name,
-			"----------]\n");
+		auto make_view = [&n...](auto& target) -> decltype(auto) {
+			if constexpr (sizeof...(Number) == 1) return std::span{ target, n... };
+			else if constexpr (std::is_array_v<Range>) return std::span{ target, std::size(target) };
+			else return target;
+		};
+		auto copy = [&n...](auto& src, auto& des) {
+			if constexpr (sizeof...(Number) == 1) ranges::copy(std::span{ src, n... }, des);
+			else if constexpr (std::is_array_v<Range>) ranges::copy(src, des);
+			else des = src;
+		};
+		auto begin = [](auto& range) {
+			if constexpr (sizeof...(Number) == 1) return range;
+			else return ranges::begin(range);
+		};
+		auto end = [&n...](auto& range) {
+			if constexpr (sizeof...(Number) == 1) return range + (... + n);
+			else return ranges::end(range);
+		};
 
-		int index = 0;
-		(this->print_result(samples, ++index), ...);
+		using value_t = std::iter_value_t<decltype(sample)>;
+
+		std::remove_reference_t<decltype(sample)> cloner;
+		if constexpr (sizeof...(Number) == 1) {
+			cloner = std::make_unique<value_t[]>(n...).release();
+		}
+
+		std::map<value_t, std::size_t> original_stored_number;
+		for (auto&& value : make_view(sample)) {
+			++original_stored_number[value];
+		}
+
+		auto check_passed = [&](auto&& comparator_name, auto&& comparator)
+		{
+			auto cloner_view = make_view(cloner);
+			auto is_passed = Tester::is_passed(original_stored_number, cloner_view, comparator);
+			if (!is_passed) {
+				Printer::print_color<
+					colors::fg_red
+					// TODO: use std::format
+				>("TC<" + range_name + ", range, " + comparator_name + "> : failed\n");
+				Printer::print_range(cloner_view);
+				this->is_all_passed = false;
+			}
+		};
+
+		auto test_range = [&]<typename two_way_comparator_t, typename... comparator_t>(
+			auto const& comparator_name,
+			two_way_comparator_t two_way_comparator,
+			comparator_t... comparator
+			)
+		{
+			copy(sample, cloner);
+			S::sort(cloner, n..., comparator...);
+			check_passed(comparator_name, two_way_comparator);
+		};
+
+		auto test_iterator = [&]<typename two_way_comparator_t, typename... comparator_t>(
+			auto const& comparator_name,
+			two_way_comparator_t two_way_comparator,
+			comparator_t... comparator
+			)
+		{
+			copy(sample, cloner);
+			S::sort(begin(cloner), end(cloner), comparator...);
+			check_passed(comparator_name, two_way_comparator);
+		};
+
+		test_range("null", ranges::less());
+		test_range("std::less()", std::less<value_t>(), std::less<value_t>());
+		test_range("std::greater()", std::greater<value_t>(), std::greater<value_t>());
+		test_range("ranges::less()", ranges::less(), ranges::less());
+		test_range("ranges::greater()", ranges::greater(), ranges::greater());
+		test_range("std::is_lt", ranges::less(), std::is_lt);
+		test_range("std::is_gt", ranges::greater(), std::is_gt);
+
+		test_iterator("null", ranges::less());
+		test_iterator("std::less()", std::less<value_t>(), std::less<value_t>());
+		test_iterator("std::greater()", std::greater<value_t>(), std::greater<value_t>());
+		test_iterator("ranges::less()", ranges::less(), ranges::less());
+		test_iterator("ranges::greater()", ranges::greater(), ranges::greater());
+		test_iterator("std::is_lt", ranges::less(), std::is_lt);
+		test_iterator("std::is_gt", ranges::greater(), std::is_gt);
 	}
+
+	template <class E, std::size_t N>
+	void test_sample(E(&sample)[N], std::size_t i)
+	{
+		Printer::print_color<colors::fg_cyan>("\nsample", i, ":");
+		Printer::print_range(sample);
+
+		is_all_passed = true;
+
+		auto v = std::vector(ranges::begin(sample), ranges::end(sample));
+		auto d = std::deque(ranges::begin(sample), ranges::end(sample));
+		auto l = std::list(ranges::begin(sample), ranges::end(sample));
+		auto s = std::string(ranges::begin(sample), ranges::end(sample));
+		auto a = std::to_array(sample);
+
+		execute_all_test_cases("std::vector", v);
+		execute_all_test_cases("std::deque", d);
+		execute_all_test_cases("std::list", l);
+		execute_all_test_cases("std::array", a);
+		execute_all_test_cases("std::string", s);
+		execute_all_test_cases("static array", sample);
+
+		if constexpr (std::is_same_v<typename S::tag_t, std::forward_iterator_tag>) {
+			auto f = std::forward_list(ranges::begin(sample), ranges::end(sample));
+			execute_all_test_cases("std::forward_list", f);
+		}
+
+		auto p = new E[N];
+		ranges::copy(sample, p);
+		execute_all_test_cases("dynamic array", p, N);
+		delete[] p;
+
+		if (is_all_passed) {
+			Printer::print_color<colors::fg_green>("Pass all test cases.")
+				<< std::endl;
+		}
+	}
+
+	std::string sorting_name;
+	bool is_all_passed;
 
 public:
-
-	template <class... Samples>
-	void test_std_vector(Samples&&... samples)
+	Tester(std::string const& sorting_name)
+		: sorting_name{ sorting_name }
 	{
-		test("std::vector", std::vector(samples)...);
-	}
-
-	template <class... Samples>
-	void test_std_deque(Samples&&... samples)
-	{
-		test("std::deque", std::deque(samples)...);
-	}
-
-	template <class... Samples>
-	void test_std_list(Samples&&... samples)
-	{
-		test("std::list", std::list(samples)...);
-	}
-
-	template <class... Samples>
-	void test_std_forward_list(Samples&&... samples)
-	{
-		test("std::forward_list", std::forward_list(samples)...);
-	}
-
-	template <size_t ... N>
-	void test_std_array(std::array<int, N>&&... samples)
-	{
-		test("std::array", samples...);
+		ranges::transform(
+			this->sorting_name,
+			this->sorting_name.begin(),
+			[](auto&& v) { return std::toupper(v); }
+		);
 	}
 
 	template <class... E, std::size_t... N>
-	void test_static_array(E(&&...samples)[N])
+	void test(E(&&...samples)[N])
 	{
-		test("static array", std::forward<E[N]>(samples)...);
-	}
-
-	template <std::size_t ... N, class ...V>
-	void test_dynamic_array(V* (&&...samples))
-	{
-		Printer::print_color<colors::fg_yellow>
-			("\n[---------- dynamic array ----------]\n");
+		Printer::print_color<colors::fg_blue>("\n[##########", sorting_name, "##########]\n");
 
 		int i = 0;
-		(this->print_result(samples, ++i, N), ...);
+		(test_sample(samples, ++i), ...);
+
+		Printer::print_color<
+			colors::fg_blue
+		>("\n[" + std::string(sorting_name.length() + (10 + 1) * 2, '#') + "]\n");
 	}
 };

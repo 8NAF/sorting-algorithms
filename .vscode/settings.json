@@ -52,5 +52,15 @@
 		"typeinfo": "cpp",
 		"any": "cpp",
 		"stack": "cpp",
+		"sstream": "cpp",
+		"span": "cpp",
+		"valarray": "cpp",
+		"chrono": "cpp",
+		"condition_variable": "cpp",
+		"ctime": "cpp",
+		"ratio": "cpp",
+		"semaphore": "cpp",
+		"shared_mutex": "cpp",
+		"stop_token": "cpp"
 	}
 }

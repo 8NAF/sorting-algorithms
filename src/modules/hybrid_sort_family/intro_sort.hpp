@@ -11,7 +11,7 @@ namespace mak
 	using introspective_sort = intro_sort;
 }
 
-class mak::intro_sort : mak::base_sorting_algorithm<
+class mak::intro_sort : public mak::base_sorting_algorithm<
 	mak::intro_sort,
 	mak::hybrid_sort_family,
 	std::bidirectional_iterator_tag

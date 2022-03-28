@@ -12,7 +12,7 @@ namespace mak
 	class comb_sort;
 }
 
-class mak::comb_sort : mak::base_sorting_algorithm<
+class mak::comb_sort : public mak::base_sorting_algorithm<
 	mak::comb_sort,
 	mak::bubble_sort_family,
 	std::bidirectional_iterator_tag

@@ -6,6 +6,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <span>
 
 namespace mak
 {
@@ -36,33 +37,10 @@ template <
 	template <class...> class family_type,
 	std::derived_from<std::input_iterator_tag> tag_type
 >
-class mak::base_sorting_algorithm {
-protected:
-
-	constexpr base_sorting_algorithm() noexcept = default;
-
-	template <class... arg_ts>
-	using family_t = family_type<arg_ts...>;
-	using tag_t = tag_type;
-
-	/**
-	  * distance(first, last) < 2 => true
-	  */
-	template <tag_to_iterator<tag_t> iterator_t>
-	static constexpr bool no_need_to_sort
-	(
-		iterator_t first,
-		iterator_t last
-	)
-	{
-		if constexpr (std::random_access_iterator<iterator_t>) {
-			return ranges::distance(first, last) < 2;
-		}
-
-		return (first == last || ++first == last);
-	}
-
+class mak::base_sorting_algorithm
+{
 public:
+	using tag_t = tag_type;
 
 	template <
 		tag_to_range<tag_t> range_t,
@@ -86,6 +64,30 @@ public:
 		comparator_t is_before = {}
 	) requires std::is_pointer_v<pointer_t>
 	{
-		injection_t::sort(pointer, pointer + n, is_before);
+		auto span = std::span{ pointer, n };
+		sort(span, is_before);
+	}
+
+protected:
+	constexpr base_sorting_algorithm() noexcept = default;
+
+	template <class... arg_ts>
+	using family_t = family_type<arg_ts...>;
+
+	/**
+	  * distance(first, last) < 2 => true
+	  */
+	template <tag_to_iterator<tag_t> iterator_t>
+	static constexpr bool no_need_to_sort
+	(
+		iterator_t first,
+		iterator_t last
+	)
+	{
+		if constexpr (std::random_access_iterator<iterator_t>) {
+			return ranges::distance(first, last) < 2;
+		}
+
+		return (first == last || ++first == last);
 	}
 };

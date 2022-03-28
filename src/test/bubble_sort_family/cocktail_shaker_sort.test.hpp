@@ -1,38 +1,17 @@
 #pragma once
 
+#include "modules/bubble_sort_family/cocktail_shaker_sort.hpp"
 #include "test/tester.hpp"
-#include "modules/bubble_sort_family/index.hpp"
 
 void test_cocktail_shaker_sort()
 {
-	Printer::print_color<colors::fg_blue>("\n[########## COCKTAIL SHAKER SORT ##########]\n");
-
-	auto tester = Tester<mak::cocktail_shaker_sort>();
-
-	std::initializer_list<int> i1 = {};
-	std::initializer_list<int> i2 = { 3 };
-	std::initializer_list<int> i3 = { 9, 0, 9, 4, 0, 1, 1, 3, 5, 6, };
-	tester.test_std_vector(i1, i2, i3);
-	tester.test_std_list(i1, i2, i3);
-	tester.test_std_deque(i1, i2, i3);
-	//tester.test_std_forward_list(i1, i2, i3);
-
-	tester.test_std_array(
-		std::array<int, 0>{},
-		std::to_array({ 3 }),
-		std::to_array({ 9, 0, 9, 4, 0, 1, 1, 3, 5, 6, })
+	auto tester = Tester<mak::cocktail_shaker_sort>("cocktail shaker sort");
+	tester.test(
+		{ 1 },
+		{ -2, -2, -2, -2, -2 },
+		{ -1, -2, -3, -4, -5, -6 },
+		{ -6, -5, -4, -3, -2, -1 },
+		{ 4, 1, 6, 7, -2, -3, -5, -9 },
+		{ 3, -1, 0, -8, 1, -7, 5, -1 }
 	);
-
-	tester.test_static_array(
-		{ 3 },
-		{ 9, 0, 9, 4, 0, 1, 1, 3, 5, 6, }
-	);
-
-	tester.test_dynamic_array<0, 1, 10>(
-		new int[] {},
-		new int[] { 3 },
-		new int[] {9, 0, 9, 4, 0, 1, 1, 3, 5, 6, }
-	);
-
-	Printer::print_color<colors::fg_blue>("\n[#################################]\n");
 }

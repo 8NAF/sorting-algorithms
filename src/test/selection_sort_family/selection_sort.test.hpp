@@ -1,36 +1,17 @@
+#pragma once
+
+#include "modules/selection_sort_family/selection_sort.hpp"
 #include "test/tester.hpp"
-#include "modules/selection_sort_family/index.hpp"
 
 void test_selection_sort()
 {
-	Printer::print_color<colors::fg_blue>("\n[########## SELECTION SORT ##########]\n");
-
-	auto tester = Tester<mak::selection_sort>();
-
-	std::initializer_list<int> i1 = {};
-	std::initializer_list<int> i2 = { 3 };
-	std::initializer_list<int> i3 = { -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 };
-	tester.test_std_vector(i1, i2, i3);
-	tester.test_std_list(i1, i2, i3);
-	tester.test_std_deque(i1, i2, i3);
-	tester.test_std_forward_list(i1, i2, i3);
-
-	tester.test_std_array(
-		std::array<int, 0>{},
-		std::to_array({ 3 }),
-		std::to_array({ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 })
+	auto tester = Tester<mak::selection_sort>("selection sort");
+	tester.test(
+		{ 1 },
+		{ 1, 1, 1, 1, 1 },
+		{ 9, 8, 7, 6, 3, 2 },
+		{ 1, 3, 6, 8, 9 },
+		{ 6, 3, -1, -7, 0, 9, 8, 2 },
+		{ -3, 1, 2, 0, 9, 8, 6 }
 	);
-
-	tester.test_static_array(
-		{ 3 },
-		{ -4, 1, 3, -5, 9, 9, 0, 2, 2, -5 }
-	);
-
-	tester.test_dynamic_array<0, 1, 10>(
-		new int[] {},
-		new int[] { 3 },
-		new int[] {-4, 1, 3, -5, 9, 9, 0, 2, 2, -5}
-	);
-
-	Printer::print_color<colors::fg_blue>("\n[#################################]\n");
 }
