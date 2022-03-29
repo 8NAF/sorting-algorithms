@@ -10,10 +10,11 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 
 # todo
 
--   improve `make_heap`
--   support `projection`
--   handle case `gap > 1` in `binary search` function
 -   add `get gap sequence` option for `shell sort`
+-   support `projection`
 -   support `sentinel`
 -   optimize `comb sort`
 -   implementing BST
+-   improve `make_heap`
+-   handle case `gap > 1` in `binary search` function
+- 	support `view`
