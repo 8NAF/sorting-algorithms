@@ -3,6 +3,7 @@
 #include "sorting_algorithm.abstract.hpp"
 #include "types/integer.type.hpp"
 
+#include <list>
 #include <forward_list>
 
 namespace mak

@@ -27,18 +27,6 @@ namespace mak
 			using type = std::ranges::range_value_t<view_t>;
 		};
 
-		// NOTE: std::views::join does not satisfy any range concept (🤬)
-		// (std::ranges::range, std::ranges:view, std::ranges::viewable_range, ...)
-		// NOTE: std::ranges::iter_value_t does not work, but 
-		// std::ranges::iterator_t<>::value_type works (😂)
-		template <class value_t>
-		struct priv_value<std::ranges::join_view<value_t>>
-		{
-			using type = std::ranges::iterator_t<
-				std::ranges::join_view<value_t>
-			>::value_type;
-		};
-
 		template <class priv_t>
 		using priv_value_t = priv_value<priv_t>::type;
 
@@ -58,16 +46,6 @@ namespace mak
 		struct priv_iterator_category<iterator_or_pointer>
 		{
 			using type = std::iterator_traits<iterator_or_pointer>::iterator_category;
-		};
-
-		// NOTE: std::views::join does not satisfy any range concept (🤬)
-		// (std::ranges::range, std::ranges:view, std::ranges::viewable_range, ...)
-		template <class value_t>
-		struct priv_iterator_category<std::ranges::join_view<value_t>>
-		{
-			using type = std::ranges::iterator_t<
-				std::ranges::join_view<value_t>
-			>::iterator_category;
 		};
 
 		template <class priv_t>
@@ -95,6 +73,9 @@ namespace mak
 // - std::back_insert_iterator (output_iterator)
 // - std::front_insert_iterator (output_iterator)
 // - std::insert_iterator (output_iterator)
+
+// Failed test cases:
+// - std::ranges::join_view
 
 // Successful test cases:
 // - std::array

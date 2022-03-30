@@ -1,7 +1,7 @@
 #pragma once
 
 #include "concepts/comparator.concept.hpp"
-#include "types/default.type.hpp"
+#include "types/function.type.hpp"
 
 #include <functional>
 #include <iterator>

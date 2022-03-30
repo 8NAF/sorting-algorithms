@@ -10,7 +10,6 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/*.test.cpp
 
 # todo
 
--   add `get gap sequence` option for `shell sort`
 -   support `projection`
 -   support `sentinel`
 -   optimize `comb sort`

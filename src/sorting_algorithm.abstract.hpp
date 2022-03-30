@@ -2,7 +2,7 @@
 
 #include "concepts/comparator.concept.hpp"
 #include "concepts/tag_to_iter.concept.hpp"
-#include "types/default.type.hpp"
+#include "types/function.type.hpp"
 #include "utils.hpp"
 
 #include <algorithm>
@@ -21,6 +21,7 @@ namespace mak
 	using types::generic_comparator;
 	using types::generic_break_function;
 	using types::default_break_function;
+	using types::generic_gap_sequence_function;
 
 	using functions::transform_to_2_way;
 	using functions::midpoint;
@@ -28,7 +29,7 @@ namespace mak
 	template <
 		class derived_type,
 		template <class...> class family_type,
-		std::derived_from<std::input_iterator_tag> tag_t
+		std::derived_from<std::input_iterator_tag> tag_type
 	> class base_sorting_algorithm;
 }
 

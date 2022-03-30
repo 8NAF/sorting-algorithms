@@ -35,13 +35,76 @@ namespace mak
 	struct shell_sort;
 }
 
-struct mak::shell_sort : mak::base_sorting_algorithm<
+struct mak::shell_sort : private mak::base_sorting_algorithm<
 	mak::shell_sort,
 	mak::insertion_sort_family,
 	std::bidirectional_iterator_tag
 >
 {
-	using base_sorting_algorithm::sort;
+	using tag_t = base_sorting_algorithm::tag_t;
+
+	template <
+		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		iter_comparator<bidirectional_iterator_t> comparator_t = default_comparator,
+		std::invocable<std::uint64_t> gap_sequence_function = generic_gap_sequence_function
+	> static void sort
+	(
+		bidirectional_iterator_t first,
+		bidirectional_iterator_t last,
+		comparator_t is_before = {},
+		gap_sequence_function get_gap_sequence = get_Sedgewick_1982_gap_sequence
+	)
+		requires std::ranges::range<std::invoke_result_t<gap_sequence_function, std::uint64_t>>
+	{
+		if (no_need_to_sort(first, last)) return;
+
+		auto family = family_t<bidirectional_iterator_t, comparator_t>(is_before);
+		auto gap_sequence = get_gap_sequence(
+			ranges::distance(first, last)
+		);
+
+		for (auto& gap : gap_sequence)
+		{
+			family.generic_insertion_sort(
+				first,
+				last,
+				gap,
+				decltype(family)::reverse_linear_search
+			);
+		}
+	}
+
+	template <
+		tag_to_range<tag_t> range_t,
+		iter_comparator<range_t> comparator_t = default_comparator,
+		std::invocable<std::uint64_t> gap_sequence_function = generic_gap_sequence_function
+	> static void sort
+	(
+		range_t& range,
+		comparator_t is_before = {},
+		gap_sequence_function get_gap_sequence = get_Sedgewick_1982_gap_sequence
+	)
+		requires std::ranges::range<std::invoke_result_t<gap_sequence_function, std::uint64_t>>
+	{
+		sort(ranges::begin(range), ranges::end(range), is_before, get_gap_sequence);
+	}
+
+	template <
+		class pointer_t,
+		iter_comparator<pointer_t> comparator_t = default_comparator,
+		std::invocable<std::uint64_t> gap_sequence_function = generic_gap_sequence_function
+	> static void sort
+	(
+		pointer_t pointer,
+		std::size_t n,
+		comparator_t is_before = {},
+		gap_sequence_function get_gap_sequence = get_Sedgewick_1982_gap_sequence
+	) requires std::is_pointer_v<pointer_t>&&
+		std::ranges::range<std::invoke_result_t<gap_sequence_function, std::uint64_t>>
+	{
+		auto span = std::span{ pointer, n };
+		sort(span, is_before, get_gap_sequence);
+	}
 
 	static auto get_Sedgewick_1982_gap_sequence(std::uint64_t limit)
 	{
@@ -56,31 +119,17 @@ struct mak::shell_sort : mak::base_sorting_algorithm<
 		}
 	}
 
-	template <
-		tag_to_iterator<tag_t> bidirectional_iterator_t,
-		iter_comparator<bidirectional_iterator_t> comparator_t = default_comparator
-	> static void sort
-	(
-		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
-		comparator_t is_before = {}
-	)
+	static auto get_Ciura_2001_gap_sequence(std::uint64_t)
 	{
-		if (no_need_to_sort(first, last)) return;
+		return std::forward_list{ 701, 301, 132, 57, 23, 10, 4, 1 };
+	}
 
-		auto family = family_t<bidirectional_iterator_t, comparator_t>(is_before);
-		auto gap_sequence = get_Sedgewick_1982_gap_sequence(
-			ranges::distance(first, last)
-		);
-
-		for (auto& gap : gap_sequence)
-		{
-			family.generic_insertion_sort(
-				first,
-				last,
-				gap,
-				decltype(family)::reverse_linear_search
-			);
+	static auto get_Shell_1959_gap_sequence(std::uint64_t limit)
+	{
+		std::list<std::uint64_t> gap_sequence;
+		for (auto pow_of2 = 2ULL; pow_of2 < limit; pow_of2 <<= 1ULL) {
+			gap_sequence.emplace_back(limit / pow_of2);
 		}
+		return gap_sequence;
 	}
 };
