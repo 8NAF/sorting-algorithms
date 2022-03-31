@@ -42,7 +42,7 @@ namespace mak
 		};
 
 		template <class iterator_or_pointer>
-			requires std::is_pointer_v<iterator_or_pointer> || std::input_iterator<iterator_or_pointer>
+			requires std::input_iterator<iterator_or_pointer>
 		struct priv_iterator_category<iterator_or_pointer>
 		{
 			using type = std::iterator_traits<iterator_or_pointer>::iterator_category;
@@ -52,68 +52,3 @@ namespace mak
 		using priv_iterator_category_t = priv_iterator_category<priv_t>::type;
 	}
 }
-
-// Hold-on test cases: 
-// - std::ranges::owning_view (C++20 | gcc v12)
-// - std::ranges::lazy_split_view (C++20 | gcc v12)
-// - std::ranges::zip_view (C++23)
-// - std::ranges::zip_transform_view (C++23)
-// - std::ranges::adjacent_view (C++23)
-// - std::ranges::adjacent_transform_view (C++23)
-// - std::ranges::join_with_view (C++23)
-
-// Skipping test cases:
-// - std::string_view (can not be sorted)
-// - std::wstring_view (can not be sorted)
-// - std::u8string_view (can not be sorted)
-// - std::u16string_view (can not be sorted)
-// - std::u32string_view (can not be sorted)
-// - std::initializer_list (can not be sorted)
-// - std::ranges::basic_istream_view (input_iterator)
-// - std::back_insert_iterator (output_iterator)
-// - std::front_insert_iterator (output_iterator)
-// - std::insert_iterator (output_iterator)
-
-// Failed test cases:
-// - std::ranges::join_view
-
-// Successful test cases:
-// - std::array
-// - std::deque
-// - std::forward_list
-// - std::list
-// - std::string
-// - std::wstring
-// - std::vector
-// - std::span
-// - std::valarray
-// - std::string
-// - std::u8string
-// - std::u16string
-// - std::u32string
-// - pointer
-// - array
-// - std::views::all
-// - std::views::counted
-// - std::views::common
-// - std::views::drop
-// - std::views::drop_while
-// - std::views::elements
-// - std::views::empty
-// - std::views::filter
-// - std::views::iota
-// - std::views::join
-// - std::views::keys
-// - std::views::take
-// - std::views::transform
-// - std::views::take_while
-// - std::views::single
-// - std::views::split
-// - std::views::reverse
-// - std::views::values
-// - std::ranges::subrange
-// - std::ranges::ref_view
-// - std::reverse_iterator
-// - std::move_iterator
-// - std::counted_iterator
-// - std::common_iterator

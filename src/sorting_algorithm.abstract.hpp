@@ -40,6 +40,8 @@ template <
 >
 class mak::base_sorting_algorithm
 {
+protected:
+
 public:
 	using tag_t = tag_type;
 
@@ -48,11 +50,15 @@ public:
 		iter_comparator<range_t> comparator_t = default_comparator
 	> static void sort
 	(
-		range_t& range,
+		range_t&& range,
 		comparator_t is_before = {}
 	)
 	{
-		injection_t::sort(ranges::begin(range), ranges::end(range), is_before);
+		return injection_t::sort(
+			ranges::begin(range),
+			ranges::end(range),
+			std::move(is_before)
+		);
 	}
 
 	template <
@@ -60,13 +66,13 @@ public:
 		iter_comparator<pointer_t> comparator_t = default_comparator
 	> static void sort
 	(
-		pointer_t pointer,
-		std::size_t n,
+		pointer_t&& pointer,
+		std::iter_difference_t<pointer_t> n,
 		comparator_t is_before = {}
 	) requires std::is_pointer_v<pointer_t>
 	{
 		auto span = std::span{ pointer, n };
-		sort(span, is_before);
+		return sort(span, std::move(is_before));
 	}
 
 protected:
