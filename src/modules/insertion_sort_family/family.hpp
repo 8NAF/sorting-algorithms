@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sorting_algorithm.abstract.hpp"
+#include "family.abstract.hpp"
 #include "types/integer.type.hpp"
 
 #include <list>
@@ -10,28 +10,21 @@ namespace mak
 {
 	using mak::types::make_unsigned_t;
 
-	template<
-		std::forward_iterator iterator_t,
-		concepts::iter_comparator<iterator_t> comparator_t
-	> class insertion_sort_family;
+	template<class iterator_t, class comparator_t, class projection_t>
+	class insertion_sort_family;
 }
 
-template<
-	std::forward_iterator iterator_t,
-	mak::concepts::iter_comparator<iterator_t> comparator_t
->
+
+template<class iterator_t, class comparator_t, class projection_t>
 class mak::insertion_sort_family
+	: private mak::base_family<iterator_t, comparator_t, projection_t>
 {
 private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
 
-	static inline auto transform_to_2_way =
-		transform_to_2_way<iterator_t, comparator_t>;
-
-	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
-
-	void rotate_right
+	constexpr void
+	rotate_right
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
@@ -49,12 +42,12 @@ private:
 	}
 
 public:
-	insertion_sort_family(comparator_t const& is_before)
-		: is_before{ transform_to_2_way(is_before) }
-	{ }
+	using base_family = base_family<iterator_t, comparator_t, projection_t>;
+	using base_family::base_family;
 
 	template <class search_function_t>
-	void generic_insertion_sort
+	constexpr void
+	generic_insertion_sort
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
@@ -66,7 +59,7 @@ public:
 		search_function_t,
 		bidirectional_iterator_t,
 		bidirectional_iterator_t,
-		decltype(is_before),
+		decltype(insertion_sort_family::is_before),
 		make_unsigned_t<bidirectional_iterator_t>
 	>
 	{
@@ -76,7 +69,7 @@ public:
 
 		while (sub_last != last)
 		{
-			auto inserted_position = search(sub_first, sub_last, is_before, gap);
+			auto inserted_position = search(sub_first, sub_last, this->is_before, gap);
 			rotate_right(inserted_position, sub_last, gap);
 
 			++sub_last;
@@ -85,11 +78,12 @@ public:
 		}
 	}
 
-	static auto binary_search
+	static constexpr auto
+	binary_search
 	(
 		forward_iterator_t first,
 		forward_iterator_t last,
-		decltype(is_before) is_before,
+		decltype(insertion_sort_family::is_before) is_before,
 		make_unsigned_t<forward_iterator_t> gap
 	)
 	{
@@ -101,11 +95,12 @@ public:
 		return first;
 	}
 
-	static auto reverse_linear_search
+	static constexpr auto
+	reverse_linear_search
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
-		decltype(is_before) is_before,
+		decltype(insertion_sort_family::is_before) is_before,
 		make_unsigned_t<bidirectional_iterator_t> gap
 	)
 		requires std::bidirectional_iterator<bidirectional_iterator_t>

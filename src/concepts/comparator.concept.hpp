@@ -1,32 +1,39 @@
 #pragma once
 
-#include <iterator>
+#include "types/function.type.hpp"
+#include "types/riva.type.hpp"
+
 #include <compare>
 
 namespace mak
 {
+	using types::default_comparator;
+	using types::default_projection;
+	
 	namespace concepts
 	{
 		template <class func_t>
 		concept three_way_comparator = std::predicate<
-			func_t,
-			std::partial_ordering
+			func_t, std::partial_ordering
 		>;
 
-		template <class func_t, class val_t>
-		concept two_way_comparator = std::predicate<func_t, val_t, val_t>;
-
-		template <class func_t, class iter_t>
-		concept iter_two_way_comparator =
-			(std::input_iterator<iter_t> || std::ranges::range<iter_t>) &&
-			two_way_comparator<func_t, std::iter_value_t<iter_t>>;
-
-		template <class func_t, class val_t>
-		concept comparator = three_way_comparator<func_t> ||
-			two_way_comparator<func_t, val_t>;
-
-		template <class func_t, class iter_t>
-		concept iter_comparator = three_way_comparator<func_t> ||
-			iter_two_way_comparator<func_t, iter_t>;
+		template <
+			class iterator_t,
+			class comparator_t = default_comparator,
+			class projection_t = default_projection
+		>
+		concept sortable =
+		(
+			three_way_comparator<comparator_t> ?
+			std::sortable<
+				iterator_t,
+				default_comparator,
+				projection_t
+			>
+			&& std::three_way_comparable<
+				std::indirect_result_t<projection_t, iterator_t>
+			> :
+			std::sortable<iterator_t, comparator_t, projection_t>
+		);
 	}
 }

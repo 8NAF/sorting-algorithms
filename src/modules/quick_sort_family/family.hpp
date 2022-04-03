@@ -1,22 +1,18 @@
 #pragma once
 
-#include "sorting_algorithm.abstract.hpp"
+#include "family.abstract.hpp"
 
 #include <stack>
 
 namespace mak
 {
-	template<
-		std::forward_iterator iterator_t,
-		iter_comparator<iterator_t> comparator_t
-	> class quick_sort_family;
+	template<class iterator_t, class comparator_t, class projection_t>
+	class quick_sort_family;
 }
 
-template<
-	std::forward_iterator iterator_t,
-	mak::concepts::iter_comparator<iterator_t> comparator_t
->
+template<class iterator_t, class comparator_t, class projection_t>
 class mak::quick_sort_family
+	: private mak::base_family<iterator_t, comparator_t, projection_t>
 {
 private:
 	using forward_iterator_t = iterator_t;
@@ -24,17 +20,12 @@ private:
 
 	friend class intro_sort;
 
-	static inline auto transform_to_2_way =
-		transform_to_2_way<iterator_t, comparator_t>;
-
-	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
-
 public:
-	quick_sort_family(comparator_t const& is_before)
-		: is_before{ transform_to_2_way(is_before) }
-	{ }
+	using base_family = base_family<iterator_t, comparator_t, projection_t>;
+	using base_family::base_family;
 
-	auto partition
+	constexpr auto
+	partition
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last
@@ -46,10 +37,10 @@ public:
 
 		while (true)
 		{
-			while (is_before(*left, middle_value)) {
+			while (this->is_before(*left, middle_value)) {
 				++left;
 			}
-			while (is_before(middle_value, *right)) {
+			while (this->is_before(middle_value, *right)) {
 				--right;
 			}
 

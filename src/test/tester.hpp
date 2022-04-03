@@ -46,7 +46,7 @@ struct Printer
 		//TODO: use std::format
 		auto open = "\033[1;" + std::to_string(color) + "m";
 		decltype(open) close = "\033[0m";
-		return ((std::cout << open << args << ' ' << close), ...);
+		return ((std::cout << open << args << close), ...);
 	}
 
 	static void print_range(ranges::input_range auto&& range)
@@ -77,79 +77,60 @@ private:
 			ranges::is_sorted(actual, comparator);
 	}
 
-	template<class Range, class... Number>
-		requires (std::unsigned_integral<Number> && ...) && (sizeof...(Number) <= 1)
+	template<class Range>
 	void execute_all_test_cases
 	(
-		std::string const& range_name,
-		Range& sample,
-		Number... n
+		std::string_view range_name,
+		Range& sample
 	)
 	{
-		auto make_view = [&n...](auto& target) -> decltype(auto) {
-			if constexpr (sizeof...(Number) == 1) return std::span{ target, n... };
-			else if constexpr (std::is_array_v<Range>) return std::span{ target, std::size(target) };
-			else return target;
-		};
-		auto copy = [&n...](auto& src, auto& des) {
-			if constexpr (sizeof...(Number) == 1) ranges::copy(std::span{ src, n... }, des);
-			else if constexpr (std::is_array_v<Range>) ranges::copy(src, des);
+		auto copy = [](auto& src, auto& des) {
+			if constexpr (std::is_array_v<Range>) ranges::copy(src, des);
 			else des = src;
 		};
-		auto begin = [](auto& range) {
-			if constexpr (sizeof...(Number) == 1) return range;
-			else return ranges::begin(range);
-		};
-		auto end = [&n...](auto& range) {
-			if constexpr (sizeof...(Number) == 1) return range + (... + n);
-			else return ranges::end(range);
-		};
-
-		using value_t = std::iter_value_t<decltype(sample)>;
 
 		std::remove_reference_t<decltype(sample)> cloner;
-		if constexpr (sizeof...(Number) == 1) {
-			cloner = std::make_unique<value_t[]>(n...).release();
-		}
 
+		using value_t = std::iter_value_t<decltype(sample)>;
 		std::map<value_t, std::size_t> original_stored_number;
-		for (auto&& value : make_view(sample)) {
+		for (auto&& value : sample) {
 			++original_stored_number[value];
 		}
 
 		auto check_passed = [&](auto&& comparator_name, auto&& comparator)
 		{
-			auto cloner_view = make_view(cloner);
-			auto is_passed = Tester::is_passed(original_stored_number, cloner_view, comparator);
+			auto is_passed = Tester::is_passed(original_stored_number, cloner, comparator);
 			if (!is_passed) {
 				Printer::print_color<
 					colors::fg_red
 					// TODO: use std::format
-				>("TC<" + range_name + ", range, " + comparator_name + "> : failed\n");
-				Printer::print_range(cloner_view);
+				>("TC< ", range_name, ", range, ", comparator_name, "> : failed\n");
+				Printer::print_range(cloner);
 				this->is_all_passed = false;
 			}
 		};
 
-		auto test_range = [&]<typename two_way_comparator_t, typename... comparator_t>(
+		auto test_range = [&]<typename two_way_comparator_t, typename... comparator_t>
+		(
 			auto const& comparator_name,
 			two_way_comparator_t two_way_comparator,
 			comparator_t... comparator
-			)
+		)
 		{
 			copy(sample, cloner);
-			S::sort(cloner, n..., comparator...);
+			S::sort(cloner, comparator...);
 			check_passed(comparator_name, two_way_comparator);
 		};
 
-		auto test_iterator = [&]<typename two_way_comparator_t, typename... comparator_t>(
+		auto test_iterator = [&]<typename two_way_comparator_t, typename... comparator_t>
+		(
 			auto const& comparator_name,
 			two_way_comparator_t two_way_comparator,
 			comparator_t... comparator
-			)
+		)
 		{
 			copy(sample, cloner);
-			S::sort(begin(cloner), end(cloner), comparator...);
+			S::sort(ranges::begin(cloner), ranges::end(cloner), comparator...);
 			check_passed(comparator_name, two_way_comparator);
 		};
 
@@ -173,7 +154,7 @@ private:
 	template <class E, std::size_t N>
 	void test_sample(E(&sample)[N], std::size_t i)
 	{
-		Printer::print_color<colors::fg_cyan>("\nsample", i, ":");
+		Printer::print_color<colors::fg_cyan>("\nsample ", i, ": ");
 		Printer::print_range(sample);
 
 		is_all_passed = true;
@@ -198,8 +179,8 @@ private:
 
 		auto p = new E[N];
 		ranges::copy(sample, p);
-		execute_all_test_cases("dynamic array", p, N);
-		delete[] p;
+		auto span = std::span{ p, N };
+		execute_all_test_cases("std::span", span);
 
 		if (is_all_passed) {
 			Printer::print_color<colors::fg_green>("Pass all test cases.")
@@ -224,13 +205,13 @@ public:
 	template <class... E, std::size_t... N>
 	void test(E(&&...samples)[N])
 	{
-		Printer::print_color<colors::fg_blue>("\n[##########", sorting_name, "##########]\n");
+		Printer::print_color<colors::fg_blue>("\n[########## ", sorting_name, " ##########]\n");
 
 		int i = 0;
 		(test_sample(samples, ++i), ...);
 
 		Printer::print_color<
 			colors::fg_blue
-		>("\n[" + std::string(sorting_name.length() + (10 + 1) * 2, '#') + "]\n");
+		>("\n[", std::string(sorting_name.length() + (10 + 1) * 2, '#'), "]\n");
 	}
 };

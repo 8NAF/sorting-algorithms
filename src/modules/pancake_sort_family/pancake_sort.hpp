@@ -17,21 +17,28 @@ struct mak::pancake_sort : mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> bidirectional_iterator_t,
-		iter_comparator<bidirectional_iterator_t> comparator_t = default_comparator
-	> static void sort
+		class comparator_t = default_comparator,
+		class projection_t = default_projection
+	>
+	requires sortable<bidirectional_iterator_t, comparator_t, projection_t>
+	static constexpr void
+	sort
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
-		comparator_t is_before = {}
+		comparator_t is_before = {},
+		projection_t projection = {}
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
 
-		auto is_before_2_way = transform_to_2_way<bidirectional_iterator_t>(is_before);
+		auto family = family_t<
+			bidirectional_iterator_t, comparator_t, projection_t
+		>(std::move(is_before), std::move(projection));
 
 		for (; first != last; ++first)
 		{
-			auto extreme = ranges::min_element(first, last, is_before_2_way);
+			auto extreme = ranges::min_element(first, last, family.is_before);
 			if (extreme != first)
 			{
 				ranges::reverse(extreme, last);

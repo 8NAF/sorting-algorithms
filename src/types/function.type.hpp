@@ -8,15 +8,11 @@ namespace mak
 {
 	namespace types
 	{
-		template <class value_t>
-		using generic_comparator = std::function<bool(value_t, value_t)>;
+		template <std::input_iterator iterator_t>
+		using default_break_function = std::function<bool(const iterator_t)>;
 		using default_comparator = std::ranges::less;
-
-		template <std::input_iterator input_iterator_t>
-		using generic_break_function = std::function<bool(const input_iterator_t)>;
-		constexpr auto default_break_function = [](const auto) { return true; };
-
-		using generic_gap_sequence_function = std::function<
+		using default_projection = std::identity;
+		using default_gap_sequence_function = std::function<
 			std::forward_list<std::uint64_t>(std::uint64_t)
 		>;
 	};

@@ -1,36 +1,27 @@
 #pragma once
 
-#include "sorting_algorithm.abstract.hpp"
+#include "family.abstract.hpp"
 
 namespace mak
 {
-	template<
-		std::forward_iterator iterator_t,
-		iter_comparator<iterator_t> comparator_t
-	> class heap_sort_family;
+	template<class iterator_t, class comparator_t, class projection_t>
+	class heap_sort_family;
 }
 
-template<
-	std::forward_iterator iterator_t,
-	mak::concepts::iter_comparator<iterator_t> comparator_t
->
+template<class iterator_t, class comparator_t, class projection_t>
 class mak::heap_sort_family
+	: private mak::base_family<iterator_t, comparator_t, projection_t>
 {
 private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
 
-	static inline auto transform_to_2_way =
-		transform_to_2_way<iterator_t, comparator_t>;
-
-	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
-
 public:
-	heap_sort_family(comparator_t const& is_before)
-		: is_before{ transform_to_2_way(is_before) }
-	{ }
+	using base_family = base_family<iterator_t, comparator_t, projection_t>;
+	using base_family::base_family;
 
-	void heapify
+	constexpr void
+	heapify
 	(
 		forward_iterator_t first,
 		forward_iterator_t last,
@@ -58,10 +49,11 @@ public:
 			auto left_child = get_left_child(parent);
 			auto right_child = ranges::next(left_child);
 
-			auto& extreme_child = (right_child != last and is_before(*left_child, *right_child)) ?
+			auto& extreme_child =
+				(right_child != last and this->is_before(*left_child, *right_child)) ?
 				right_child : left_child;
 
-			if (is_before(*extreme_child, stored_value)) break;
+			if (this->is_before(*extreme_child, stored_value)) break;
 
 			*parent = std::move(*extreme_child);
 			parent = extreme_child;
@@ -70,7 +62,8 @@ public:
 		*parent = std::move(stored_value);
 	}
 
-	void make_heap(bidirectional_iterator_t first, bidirectional_iterator_t last) const
+	constexpr void
+	make_heap(bidirectional_iterator_t first, bidirectional_iterator_t last) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
 		// The number of nodes have children in a sequence with n elements is: trunc(n div 2)
@@ -87,7 +80,8 @@ public:
 		heapify(first, last, first);
 	}
 
-	void do_sort(bidirectional_iterator_t first, bidirectional_iterator_t last) const
+	constexpr void
+	do_sort(bidirectional_iterator_t first, bidirectional_iterator_t last) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
 		for (--last; last != first; --last)

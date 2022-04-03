@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sorting_algorithm.abstract.hpp"
+#include "family.abstract.hpp"
 #include "types/integer.type.hpp"
 
 #include <list>
@@ -8,33 +8,27 @@
 
 namespace mak
 {
-	using mak::types::make_signed_t;
-	using mak::types::make_unsigned_t;
-	using mak::functions::prev;
-
-	template<
-		std::forward_iterator iterator_t,
-		iter_comparator<iterator_t> comparator_t
-	> class bubble_sort_family;
+	using types::make_signed_t;
+	using types::make_unsigned_t;
+	using functions::prev;
+	
+	template<class iterator_t, class comparator_t, class projection_t>
+	class bubble_sort_family;
 }
 
-template<
-	std::forward_iterator iterator_t,
-	mak::concepts::iter_comparator<iterator_t> comparator_t
->
+template<class iterator_t, class comparator_t, class projection_t>
 class mak::bubble_sort_family
+	: private mak::base_family<iterator_t, comparator_t, projection_t>
 {
 public:
 	using unsigned_opt_t = std::optional<make_unsigned_t<iterator_t>>;
+	using base_family = base_family<iterator_t, comparator_t, projection_t>;
+	using base_family::base_family;
 
 private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
 
-	static inline auto transform_to_2_way =
-		transform_to_2_way<iterator_t, comparator_t>;
-
-	std::invoke_result_t<decltype(transform_to_2_way), comparator_t> is_before;
 	unsigned_opt_t gap_opt;
 	unsigned_opt_t step_opt;
 
@@ -56,30 +50,35 @@ private:
 
 public:
 
-	constexpr bubble_sort_family(
-		comparator_t const& is_before,
+	constexpr bubble_sort_family
+	(
+		comparator_t comparator,
+		projection_t projection,
 		unsigned_opt_t gap_opt = std::nullopt,
 		unsigned_opt_t step_opt = std::nullopt
 	)
-		: is_before{ transform_to_2_way(is_before) }
+		: base_family(comparator, projection)
 		, gap_opt{ gap_opt }
 		, step_opt{ step_opt }
 	{ }
 
-	template<
-		std::predicate<const iterator_t> break_function_t
-	> struct options {
+	template <class break_function_t = default_break_function<iterator_t>>
+	requires std::predicate<break_function_t, const iterator_t>
+	struct options
+	{
 		iterator_t first;
 		iterator_t last;
 		unsigned_opt_t gap_opt = std::nullopt;
 		unsigned_opt_t step_opt = std::nullopt;
-		break_function_t is_break_on_first_swap = default_break_function;
+		break_function_t is_break_on_first_swap = default_break_function<iterator_t>(
+			[](const auto) { return false; }
+		);
 	};
 
-	template <
-		std::predicate<const forward_iterator_t> break_function_t
-		= generic_break_function<forward_iterator_t>
-	> void sort_the_rest(options<break_function_t> options) const
+	template <class break_function_t = default_break_function<iterator_t>>
+	requires std::predicate<break_function_t, const forward_iterator_t>
+	constexpr void
+	sort_the_rest(options<break_function_t> options) const
 	{
 		auto [
 			first, last, gap_opt, step_opt, is_break_on_first_swap
@@ -95,7 +94,7 @@ public:
 			auto& current_value = *current;
 			auto& next_value = *next;
 
-			if (is_before(next_value, current_value))
+			if (this->is_before(next_value, current_value))
 			{
 				ranges::swap(next_value, current_value);
 				if (is_break_on_first_swap(current)) break;
@@ -105,7 +104,8 @@ public:
 		}
 	}
 
-	auto find_last_swap
+	constexpr auto
+	find_last_swap
 	(
 		forward_iterator_t first,
 		forward_iterator_t last,
@@ -122,7 +122,7 @@ public:
 			auto& current_value = *current;
 			auto& next_value = *next;
 
-			if (is_before(next_value, current_value))
+			if (this->is_before(next_value, current_value))
 			{
 				ranges::swap(next_value, current_value);
 				last_swap = current;
@@ -131,7 +131,8 @@ public:
 		return last_swap;
 	}
 
-	auto reverse_find_last_swap
+	constexpr auto
+	reverse_find_last_swap
 	(
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
@@ -149,7 +150,7 @@ public:
 			auto& current_value = *current;
 			auto& prev_value = *prev;
 
-			if (is_before(current_value, prev_value))
+			if (this->is_before(current_value, prev_value))
 			{
 				ranges::swap(current_value, prev_value);
 				last_swap = current;

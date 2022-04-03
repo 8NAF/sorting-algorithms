@@ -18,7 +18,7 @@ namespace mak
 				std::same_as<tag_t, std::bidirectional_iterator_tag> ? std::ranges::bidirectional_range<iterator_t> :
 				std::same_as<tag_t, std::forward_iterator_tag> ? std::ranges::forward_range<iterator_t> :
 				std::ranges::input_range<iterator_t>
-				);
+			);
 
 		/**
 		  * Check the corresponding iterator concept based on the tag provided
@@ -32,6 +32,6 @@ namespace mak
 				std::same_as<tag_t, std::bidirectional_iterator_tag> ? std::bidirectional_iterator<iterator_t> :
 				std::same_as<tag_t, std::forward_iterator_tag> ? std::forward_iterator<iterator_t> :
 				std::input_iterator<iterator_t>
-				);
+			);
 	}
 }

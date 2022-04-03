@@ -6,24 +6,22 @@
 #include "utils.hpp"
 
 #include <algorithm>
-#include <span>
 
 namespace mak
 {
 	namespace ranges = std::ranges;
 
-	using concepts::iter_comparator;
+	using concepts::three_way_comparator;
+	using concepts::sortable;
+
 	using concepts::tag_to_range;
 	using concepts::tag_to_iterator;
-	using concepts::three_way_comparator;
 
 	using types::default_comparator;
-	using types::generic_comparator;
-	using types::generic_break_function;
+	using types::default_projection;
 	using types::default_break_function;
-	using types::generic_gap_sequence_function;
+	using types::default_gap_sequence_function;
 
-	using functions::transform_to_2_way;
 	using functions::midpoint;
 
 	template <
@@ -40,39 +38,29 @@ template <
 >
 class mak::base_sorting_algorithm
 {
-protected:
-
 public:
 	using tag_t = tag_type;
 
 	template <
 		tag_to_range<tag_t> range_t,
-		iter_comparator<range_t> comparator_t = default_comparator
-	> static void sort
+		class comparator_t = default_comparator,
+		class projection_t = default_projection
+	>
+	requires sortable<ranges::iterator_t<range_t>, comparator_t, projection_t>
+	static constexpr void
+	sort
 	(
 		range_t&& range,
-		comparator_t is_before = {}
+		comparator_t is_before = {},
+		projection_t projection = {}
 	)
 	{
 		return injection_t::sort(
 			ranges::begin(range),
 			ranges::end(range),
-			std::move(is_before)
+			std::move(is_before),
+			std::move(projection)
 		);
-	}
-
-	template <
-		class pointer_t,
-		iter_comparator<pointer_t> comparator_t = default_comparator
-	> static void sort
-	(
-		pointer_t&& pointer,
-		std::iter_difference_t<pointer_t> n,
-		comparator_t is_before = {}
-	) requires std::is_pointer_v<pointer_t>
-	{
-		auto span = std::span{ pointer, n };
-		return sort(span, std::move(is_before));
 	}
 
 protected:
@@ -94,7 +82,8 @@ protected:
 		if constexpr (std::random_access_iterator<iterator_t>) {
 			return ranges::distance(first, last) < 2;
 		}
-
-		return (first == last || ++first == last);
+		else {
+			return (first == last || ++first == last);
+		}
 	}
 };
