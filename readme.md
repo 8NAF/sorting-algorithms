@@ -32,21 +32,21 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/index.cpp
 
 # Unsupported types
 
-| Types                           | Reason          | Note                                  |
-|---------------------------------|-----------------|---------------------------------------|
-| std::ranges::iota               | ???             | compiler error with std::ranges::sort |
-| std::ranges::filter_view        | ???             | compiler error with std::ranges::sort |
-| std::views::transform_view      | ???             | compiler error with std::ranges::sort |
-| std::views::join_view           | ???             | compiler error with std::ranges::sort |
-| std::views::split_view          | ???             | compiler error with std::ranges::sort |
-| std::basic_string_view          | const           |                                       |
-| std::initializer_list           | const           |                                       |
-| std::back_insert_iterator       | output iterator |                                       |
-| std::front_insert_iterator      | output iterator |                                       |
-| std::insert_iterator            | output iterator |                                       |
-| std::ranges::basic_istream_view | input iterator  |                                       |
-| std::move_iterator              | ???             | compiler error with std::ranges::sort |
-| std::common_iterator            | ???             | compiler error with std::ranges::sort |
+| Types                           | Reason          | Note                                                              |
+|---------------------------------|-----------------|-------------------------------------------------------------------|
+| std::ranges::iota               | ???             | compiler error with std::ranges::sort                             |
+| std::ranges::filter_view        | ???             | compiler error with std::ranges::sort                             |
+| std::views::transform_view      | ???             | compiler error with std::ranges::sort                             |
+| std::views::join_view           | ???             | compiler error with std::ranges::sort, std::ranges::range = false |
+| std::views::split_view          | ???             | compiler error with std::ranges::sort                             |
+| std::basic_string_view          | const           |                                                                   |
+| std::initializer_list           | const           |                                                                   |
+| std::back_insert_iterator       | output iterator |                                                                   |
+| std::front_insert_iterator      | output iterator |                                                                   |
+| std::insert_iterator            | output iterator |                                                                   |
+| std::ranges::basic_istream_view | input iterator  |                                                                   |
+| std::move_iterator              | ???             | compiler error with std::ranges::sort                             |
+| std::common_iterator            | ???             | compiler error with std::ranges::sort                             |
 
 # Hold-on
 
@@ -62,8 +62,6 @@ $ g++ -std=c++20 -I./src ./src/test/*_family/index.cpp
 
 # Todo
 
-- 	change `comparator` concept
--   support `projection`
 -   optimize `comb sort`
 -   improve `make_heap`
 -   support `sentinel`
