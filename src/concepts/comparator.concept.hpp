@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types/function.type.hpp"
-#include "types/riva.type.hpp"
 
 #include <compare>
 
