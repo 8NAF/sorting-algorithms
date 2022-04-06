@@ -138,7 +138,7 @@ private:
 			std::tuple("std::is_lt", ranges::less(), std::is_lt),
 			std::tuple("std::is_gt", ranges::greater(), std::is_gt)
 		);
-		
+
 		[&]<std::size_t... index_t>(std::index_sequence<index_t...>)
 		{
 			(std::apply(test_impl, std::get<index_t>(test_cases)), ...);
@@ -152,10 +152,10 @@ private:
 		Printer::print_range(sample);
 
 		is_all_passed = true;
-		
+
 		auto p = new E[N];
 		ranges::copy(sample, p);
-		
+
 		auto all_vr = std::vector(ranges::begin(sample), ranges::end(sample));
 		auto counted_vr = std::vector(ranges::begin(sample), ranges::end(sample));
 		auto common_vr = std::vector(ranges::begin(sample), ranges::end(sample));
@@ -191,10 +191,10 @@ private:
 			std::tuple("std::pmr::deque", std::pmr::deque<E>(ranges::begin(sample), ranges::end(sample))),
 			std::tuple("std::pmr::list", std::pmr::list<E>(ranges::begin(sample), ranges::end(sample))),
 			std::tuple("std::pmr::string", std::pmr::string(ranges::begin(sample), ranges::end(sample))),
-			
+
 			std::tuple("std::span", std::span{ p, N }),
 			std::tuple("std::array", std::to_array(sample)),
-			
+
 			std::tuple("std::views::all_t", views::all(all_vr)),
 			std::tuple("std::views::counted", views::counted(counted_vr.begin(), ranges::size(counted_vr))),
 			std::tuple("std::views::common_view", views::common(common_vr)),
