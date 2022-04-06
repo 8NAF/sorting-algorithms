@@ -97,7 +97,7 @@ public:
 			if (this->is_before(next_value, current_value))
 			{
 				ranges::swap(next_value, current_value);
-				if (is_break_on_first_swap(current)) break;
+				if (std::invoke(is_break_on_first_swap, current)) break;
 			}
 
 			current = (gap == step) ? next : ranges::next(current, gap);

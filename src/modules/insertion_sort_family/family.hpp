@@ -69,7 +69,7 @@ public:
 
 		while (cur_last != last)
 		{
-			auto inserted_position = search(cur_first, cur_last, this->is_before, gap);
+			auto inserted_position = std::invoke(search, cur_first, cur_last, this->is_before, gap);
 			rotate_right(inserted_position, cur_last, gap);
 
 			++cur_last;

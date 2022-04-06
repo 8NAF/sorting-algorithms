@@ -34,10 +34,17 @@ private:
 			projection = std::move(projection)
 		](auto const& lhs, auto const& rhs) constexpr {
 			if constexpr (three_way_comparator<comparator_t>) {
-				return comparator(projection(lhs) <=> projection(rhs));
+				return std::invoke(
+					comparator,
+					std::invoke(projection, lhs) <=> std::invoke(projection,rhs)
+				);
 			}
 			else {
-				return comparator(projection(lhs), projection(rhs));
+				return std::invoke(
+					comparator,
+					std::invoke(projection, lhs),
+					std::invoke(projection, rhs)
+				);
 			}
 		};
 	}

@@ -68,7 +68,7 @@ struct mak::shell_sort : private mak::base_sorting_algorithm<
 		>(std::move(is_before), std::move(projection));
 
 		const uint64_t d_first_last = ranges::distance(first, last);
-		auto gap_sequence = get_gap_sequence(n);
+		auto gap_sequence = std::invoke(get_gap_sequence, d_first_last);
 
 		for (auto& gap : gap_sequence)
 		{
