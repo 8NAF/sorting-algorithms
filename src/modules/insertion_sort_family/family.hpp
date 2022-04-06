@@ -63,18 +63,18 @@ public:
 		make_unsigned_t<bidirectional_iterator_t>
 	>
 	{
-		auto sub_last = ranges::next(first, gap);
-		auto sub_first = first;
-		auto d_first_sub_last = gap;
+		auto cur_last = ranges::next(first, gap);
+		auto cur_first = first;
+		auto d_first_cur_last = gap;
 
-		while (sub_last != last)
+		while (cur_last != last)
 		{
-			auto inserted_position = search(sub_first, sub_last, this->is_before, gap);
-			rotate_right(inserted_position, sub_last, gap);
+			auto inserted_position = search(cur_first, cur_last, this->is_before, gap);
+			rotate_right(inserted_position, cur_last, gap);
 
-			++sub_last;
-			++d_first_sub_last;
-			sub_first = (d_first_sub_last % gap == 0) ? first : ranges::next(sub_first);
+			++cur_last;
+			++d_first_cur_last;
+			cur_first = (d_first_cur_last % gap == 0) ? first : ranges::next(cur_first);
 		}
 	}
 

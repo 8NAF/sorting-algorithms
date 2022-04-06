@@ -56,25 +56,25 @@ public:
 
 		for (auto const& gap : gap_sequence)
 		{
-			auto [sub_first, sub_last] = std::pair(first, last);
+			auto [cur_first, cur_last] = std::pair(first, last);
 			auto upper_limit = ranges::prev(last, gap - 1);
-			auto d_sub_first_Last = d_first_last;
+			auto d_cur_first_Last = d_first_last;
 
-			while (sub_first != upper_limit)
+			while (cur_first != upper_limit)
 			{
-				sub_last =
-					(sub_last != last) ?
-					ranges::next(sub_last) :
-					ranges::prev(last, d_sub_first_Last % gap);
+				cur_last =
+					(cur_last != last) ?
+					ranges::next(cur_last) :
+					ranges::prev(last, d_cur_first_Last % gap);
 
 				family.sort_the_rest({
-						.first = sub_first,
-						.last = sub_last,
+						.first = cur_first,
+						.last = cur_last,
 						.gap_opt = gap
 					});
 
-				++sub_first;
-				--d_sub_first_Last;
+				++cur_first;
+				--d_cur_first_Last;
 			}
 		}
 
