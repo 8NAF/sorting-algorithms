@@ -56,25 +56,27 @@ public:
 
 		for (auto const& gap : gap_sequence)
 		{
-			auto [cur_first, cur_last] = std::pair(first, last);
-			auto upper_limit = ranges::prev(last, gap - 1);
-			auto d_cur_first_last = d_first_last;
+			if (gap >= d_first_last) continue;
 
-			while (cur_first != upper_limit)
+			auto& lower_limit_head = first;
+			auto upper_limit_head = ranges::next(lower_limit_head, gap);
+			auto head = lower_limit_head;
+
+			auto& upper_limit_tail = last;
+			auto mod = d_first_last % gap;
+			auto tail = ranges::prev(upper_limit_tail, mod);
+			auto lower_limit_tail = ranges::prev(tail, gap - mod - 1);
+
+			while (head != upper_limit_head)
 			{
-				cur_last =
-					(cur_last != last) ?
-					ranges::next(cur_last) :
-					ranges::prev(last, d_cur_first_last % gap);
-
 				family.sort_subrange({
-						.first = cur_first,
-						.last = cur_last,
-						.gap_opt = gap
-					});
+					.first = head,
+					.last = tail,
+					.gap_opt = gap
+				});
 
-				++cur_first;
-				--d_cur_first_last;
+				++head;
+				tail = (tail == upper_limit_tail) ? lower_limit_tail : ranges::next(tail);
 			}
 		}
 
