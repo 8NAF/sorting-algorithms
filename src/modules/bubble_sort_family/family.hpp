@@ -11,7 +11,7 @@ namespace mak
 	using types::make_signed_t;
 	using types::make_unsigned_t;
 	using functions::prev;
-	
+
 	template<class iterator_t, class comparator_t, class projection_t>
 	class bubble_sort_family;
 }
@@ -78,7 +78,7 @@ public:
 	template <class break_function_t = default_break_function<iterator_t>>
 	requires std::predicate<break_function_t, const forward_iterator_t>
 	constexpr void
-	sort_the_rest(options<break_function_t> options) const
+	sort_subrange(options<break_function_t> options) const
 	{
 		auto [
 			first, last, gap_opt, step_opt, is_break_on_first_swap

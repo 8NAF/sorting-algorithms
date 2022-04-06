@@ -58,23 +58,23 @@ public:
 		{
 			auto [cur_first, cur_last] = std::pair(first, last);
 			auto upper_limit = ranges::prev(last, gap - 1);
-			auto d_cur_first_Last = d_first_last;
+			auto d_cur_first_last = d_first_last;
 
 			while (cur_first != upper_limit)
 			{
 				cur_last =
 					(cur_last != last) ?
 					ranges::next(cur_last) :
-					ranges::prev(last, d_cur_first_Last % gap);
+					ranges::prev(last, d_cur_first_last % gap);
 
-				family.sort_the_rest({
+				family.sort_subrange({
 						.first = cur_first,
 						.last = cur_last,
 						.gap_opt = gap
 					});
 
 				++cur_first;
-				--d_cur_first_Last;
+				--d_cur_first_last;
 			}
 		}
 

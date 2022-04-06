@@ -20,7 +20,7 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 		tag_to_iterator<tag_t> forward_iterator_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
-	> 
+	>
 	requires sortable<forward_iterator_t, comparator_t, projection_t>
 	static constexpr void
 	sort
@@ -32,19 +32,19 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 	)
 	{
 		if (no_need_to_sort(first, last)) return;
-		
+
 		auto family = family_t<
 			forward_iterator_t, comparator_t, projection_t
 		>(std::move(is_before), std::move(projection), 2, 1);
 
 		auto sort_even = [&family](auto&& first, auto&& last, bool& not_swapped)
 		{
-			family.sort_the_rest({
+			family.sort_subrange({
 				.first = first,
 				.last = last,
 				.is_break_on_first_swap = [&](auto const& current) {
 					not_swapped = false;
-					family.sort_the_rest({ ranges::next(current, 2), last });
+					family.sort_subrange({ ranges::next(current, 2), last });
 					return true;
 				}
 			});
@@ -52,7 +52,7 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 		auto sort_odd = [&sort_even, &family](auto&& first, auto&& last, bool& not_swapped) {
 			not_swapped ?
 				sort_even(first, last, not_swapped) :
-				family.sort_the_rest({ first, last });
+				family.sort_subrange({ first, last });
 		};
 
 		bool mod2 = ranges::distance(first, last) % 2;
