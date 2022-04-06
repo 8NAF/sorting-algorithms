@@ -62,7 +62,7 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 
 # Todo
 
--   optimize `comb sort`
+-	`jumping iterator`
 -   improve `make_heap`
 -   support `sentinel`
 -	support `dangling`
