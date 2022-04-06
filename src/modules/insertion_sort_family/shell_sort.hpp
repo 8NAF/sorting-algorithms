@@ -66,13 +66,14 @@ struct mak::shell_sort : private mak::base_sorting_algorithm<
 		auto family = family_t<
 			bidirectional_iterator_t, comparator_t, projection_t
 		>(std::move(is_before), std::move(projection));
-		
-		auto gap_sequence = get_gap_sequence(
-			ranges::distance(first, last)
-		);
+
+		const uint64_t d_first_last = ranges::distance(first, last);
+		auto gap_sequence = get_gap_sequence(n);
 
 		for (auto& gap : gap_sequence)
 		{
+			if (gap >= d_first_last) continue;
+
 			family.generic_insertion_sort(
 				first,
 				last,
