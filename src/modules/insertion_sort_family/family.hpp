@@ -65,7 +65,7 @@ public:
 	{
 		auto sub_last = ranges::next(first, gap);
 		auto sub_first = first;
-		auto d_first_sub_last = ranges::distance(first, sub_last);
+		auto d_first_sub_last = gap;
 
 		while (sub_last != last)
 		{
