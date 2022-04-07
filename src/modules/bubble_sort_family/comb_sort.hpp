@@ -58,16 +58,14 @@ public:
 		{
 			if (gap >= d_first_last) continue;
 
-			auto& lower_limit_head = first;
-			auto upper_limit_head = ranges::next(lower_limit_head, gap);
-			auto head = lower_limit_head;
+			auto head_limit = limit(first, ranges::next(first, gap));
+			auto head = head_limit.lower;
 
-			auto& upper_limit_tail = last;
 			auto mod = d_first_last % gap;
-			auto tail = ranges::prev(upper_limit_tail, mod);
-			auto lower_limit_tail = ranges::prev(tail, gap - mod - 1);
+			auto tail = ranges::prev(last, mod);
+			auto tail_limit = limit(ranges::prev(tail, gap - mod - 1), last);
 
-			while (head != upper_limit_head)
+			while (head != head_limit.upper)
 			{
 				family.sort_subrange({
 					.first = head,
@@ -76,7 +74,7 @@ public:
 				});
 
 				++head;
-				tail = (tail == upper_limit_tail) ? lower_limit_tail : ranges::next(tail);
+				tail = (tail == tail_limit.upper) ? tail_limit.lower : ranges::next(tail);
 			}
 		}
 

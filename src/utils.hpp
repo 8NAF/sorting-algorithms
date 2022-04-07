@@ -37,6 +37,20 @@ namespace mak
 		}
 	}
 
+	namespace types
+	{
+		template <std::input_iterator iterator_t>
+		struct limit : private std::pair<iterator_t, iterator_t>
+		{
+			constexpr limit(iterator_t lower, iterator_t upper)
+				: std::pair<iterator_t, iterator_t>(lower, upper)
+			{}
+
+			iterator_t const& lower = this->first;
+			iterator_t const& upper = this->second;
+		};
+	}
+
 #undef input_it_t
 #undef bidi_it_t
 }
