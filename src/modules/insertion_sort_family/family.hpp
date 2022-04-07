@@ -23,6 +23,66 @@ private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
 
+	class jumping_iterator
+	{
+		iterator_t iterator;
+		std::iter_difference_t<iterator_t> step;
+
+	public:
+		using difference_type = std::iter_difference_t<iterator_t>;
+		using value_type = std::iter_value_t<iterator_t>;
+		using reference = std::iter_reference_t<iterator_t>;
+		using pointer = std::iterator_traits<iterator_t>::pointer;
+
+		constexpr jumping_iterator() = default;
+		constexpr jumping_iterator
+		(
+			iterator_t iterator,
+			std::iter_difference_t<iterator_t> step
+		)
+			: iterator{ iterator }
+			, step{ step }
+		{}
+
+		constexpr friend auto operator==(jumping_iterator const& a, jumping_iterator const& b) {
+			return a.iterator == b.iterator;
+		}
+
+		// NOTE: can not use below line instead of above line,
+		// because there is a bug with gcc
+		//friend auto operator<=>(jumping_iterator const&, jumping_iterator const&) = default;
+
+		constexpr jumping_iterator& operator=(jumping_iterator const&) = default;
+
+		constexpr auto base() const {
+			return iterator;
+		}
+
+		constexpr auto& operator*() const {
+			return *iterator;
+		}
+
+		constexpr auto& operator++() {
+			ranges::advance(iterator, step);
+			return *this;
+		}
+
+		constexpr auto operator++(int) {
+			ranges::advance(iterator, step);
+			return *this;
+		}
+
+		constexpr auto& operator--() {
+			ranges::advance(iterator, -step);
+			return *this;
+		}
+
+		constexpr auto operator--(int) {
+			ranges::advance(iterator, -step);
+			return *this;
+		}
+	};
+
 	constexpr void
 	rotate_right
 	(
@@ -32,13 +92,16 @@ private:
 	) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
-		auto stored_value = ranges::iter_move(last);
-		for (auto current = last; current != first; ) {
-			auto temp = ranges::prev(current, gap);
-			*current = ranges::iter_move(temp);
-			current = temp;
+		auto rj_first = std::reverse_iterator(
+			jumping_iterator(last, gap)
+		);
+		auto rj_last = std::reverse_iterator(
+			jumping_iterator(first, gap)
+		);
+
+		if (rj_first != rj_last) {
+			ranges::rotate(rj_first, ranges::next(rj_first), rj_last);
 		}
-		*first = std::move(stored_value);
 	}
 
 public:
@@ -55,44 +118,49 @@ public:
 		search_function_t search
 	) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>&&
-	std::invocable<
-		search_function_t,
-		bidirectional_iterator_t,
-		bidirectional_iterator_t,
-		decltype(insertion_sort_family::is_before),
-		make_unsigned_t<bidirectional_iterator_t>
-	>
+		std::invocable
+		<
+			search_function_t,
+			bidirectional_iterator_t,
+			bidirectional_iterator_t,
+			decltype(insertion_sort_family::is_before),
+			make_unsigned_t<bidirectional_iterator_t>
+		>
 	{
-		auto cur_last = ranges::next(first, gap);
-		auto cur_first = first;
-		auto d_first_cur_last = gap;
+		auto head_limit = limit(first, ranges::next(first, gap - 1));
+		auto head = head_limit.lower;
 
-		while (cur_last != last)
+		auto tail_limit = limit(ranges::next(first, gap), last);
+		auto tail = tail_limit.lower;
+
+		while (tail != tail_limit.upper)
 		{
-			auto inserted_position = std::invoke(search, cur_first, cur_last, this->is_before, gap);
-			rotate_right(inserted_position, cur_last, gap);
+			auto inserted_position = std::invoke(
+				search,
+				head, tail, this->is_before, gap
+			);
+			rotate_right(inserted_position, ranges::next(tail, gap), gap);
 
-			++cur_last;
-			++d_first_cur_last;
-			cur_first = (d_first_cur_last % gap == 0) ? first : ranges::next(cur_first);
+			++tail;
+			head = head_limit.next(head);
 		}
 	}
 
 	static constexpr auto
 	binary_search
 	(
-		forward_iterator_t first,
-		forward_iterator_t last,
+		bidirectional_iterator_t first,
+		bidirectional_iterator_t last,
 		decltype(insertion_sort_family::is_before) is_before,
 		make_unsigned_t<forward_iterator_t> gap
 	)
+		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
-		if (gap == 1) {
-			return ranges::upper_bound(first, last, *last, is_before);
-		}
+		auto j_first = jumping_iterator(first, gap);
+		auto j_last = jumping_iterator(last, gap);
 
-		// TODO: handle case - gap > 1
-		return first;
+		auto j_result = ranges::upper_bound(j_first, j_last, *last, is_before);
+		return j_result.base();
 	}
 
 	static constexpr auto
@@ -105,10 +173,17 @@ public:
 	)
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
-		auto current = ranges::prev(last, gap);
-		while (current != first and is_before(*last, *current)) {
-			current = ranges::prev(current, gap);
-		}
-		return is_before(*last, *current) ? current : ranges::next(current, gap);
+		auto rj_first = std::reverse_iterator(
+			jumping_iterator(last, gap)
+		);
+		auto rj_last = std::reverse_iterator(
+			jumping_iterator(first, gap)
+		);
+
+		auto rj_result = ranges::find_if(rj_first, rj_last, [&](auto&& value) {
+			return !is_before(*last, value);
+		});
+
+		return rj_result.base().base();
 	}
 };

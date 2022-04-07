@@ -62,9 +62,7 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 
 # Todo
 
--	`jumping iterator`
--   improve `make_heap`
+-	reverse the range traversal direction of insertion sort algorithms
 -   support `sentinel`
 -	support `dangling`
 -   implementing BST
--   handle case `gap > 1` in `binary search` function
