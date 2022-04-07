@@ -48,6 +48,10 @@ namespace mak
 
 			iterator_t const& lower = this->first;
 			iterator_t const& upper = this->second;
+
+			constexpr auto next(iterator_t current) {
+				return current == upper ? lower : ranges::next(current);
+			}
 		};
 	}
 

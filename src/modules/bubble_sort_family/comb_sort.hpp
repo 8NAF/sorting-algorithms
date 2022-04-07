@@ -74,7 +74,7 @@ public:
 				});
 
 				++head;
-				tail = (tail == tail_limit.upper) ? tail_limit.lower : ranges::next(tail);
+				tail = tail_limit.next(tail);
 			}
 		}
 
