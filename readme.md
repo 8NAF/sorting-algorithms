@@ -62,7 +62,6 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 
 # Todo
 
--	reverse the range traversal direction of insertion sort algorithms
 -   support `sentinel`
 -	support `dangling`
 -   implementing BST
