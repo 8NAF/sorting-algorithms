@@ -1,6 +1,8 @@
 #pragma once
 
 #include "family.abstract.hpp"
+#include "adaptors/jumping_iterator.adaptor.hpp"
+#include "adaptors/cyclic_iterator.adaptor.hpp"
 #include "types/integer.type.hpp"
 
 #include <list>
@@ -8,12 +10,14 @@
 
 namespace mak
 {
-	using mak::types::make_unsigned_t;
+	using adaptors::jumping_iterator;
+	using adaptors::cyclic_iterator;
+
+	using types::make_unsigned_t;
 
 	template<class iterator_t, class comparator_t, class projection_t>
 	class insertion_sort_family;
 }
-
 
 template<class iterator_t, class comparator_t, class projection_t>
 class mak::insertion_sort_family
@@ -22,66 +26,6 @@ class mak::insertion_sort_family
 private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
-
-	class jumping_iterator
-	{
-		iterator_t iterator;
-		std::iter_difference_t<iterator_t> step;
-
-	public:
-		using difference_type = std::iter_difference_t<iterator_t>;
-		using value_type = std::iter_value_t<iterator_t>;
-		using reference = std::iter_reference_t<iterator_t>;
-		using pointer = std::iterator_traits<iterator_t>::pointer;
-
-		constexpr jumping_iterator() = default;
-		constexpr jumping_iterator
-		(
-			iterator_t iterator,
-			std::iter_difference_t<iterator_t> step
-		)
-			: iterator{ iterator }
-			, step{ step }
-		{}
-
-		constexpr friend auto operator==(jumping_iterator const& a, jumping_iterator const& b) {
-			return a.iterator == b.iterator;
-		}
-
-		// NOTE: can not use below line instead of above line,
-		// because there is a bug with gcc
-		//friend auto operator<=>(jumping_iterator const&, jumping_iterator const&) = default;
-
-		constexpr jumping_iterator& operator=(jumping_iterator const&) = default;
-
-		constexpr auto base() const {
-			return iterator;
-		}
-
-		constexpr auto& operator*() const {
-			return *iterator;
-		}
-
-		constexpr auto& operator++() {
-			ranges::advance(iterator, step);
-			return *this;
-		}
-
-		constexpr auto operator++(int) {
-			ranges::advance(iterator, step);
-			return *this;
-		}
-
-		constexpr auto& operator--() {
-			ranges::advance(iterator, -step);
-			return *this;
-		}
-
-		constexpr auto operator--(int) {
-			ranges::advance(iterator, -step);
-			return *this;
-		}
-	};
 
 	constexpr void
 	rotate_right
@@ -127,13 +71,10 @@ public:
 			make_unsigned_t<bidirectional_iterator_t>
 		>
 	{
-		auto head_limit = limit(first, ranges::next(first, gap - 1));
-		auto head = head_limit.lower;
+		auto head = cyclic_iterator(first, ranges::next(first, gap - 1));
+		auto tail = cyclic_iterator(ranges::next(first, gap), last);
 
-		auto tail_limit = limit(ranges::next(first, gap), last);
-		auto tail = tail_limit.lower;
-
-		while (tail != tail_limit.upper)
+		while (tail.is_not_last())
 		{
 			auto inserted_position = std::invoke(
 				search,
@@ -142,7 +83,7 @@ public:
 			rotate_right(inserted_position, ranges::next(tail, gap), gap);
 
 			++tail;
-			head = head_limit.next(head);
+			++head;
 		}
 	}
 
@@ -159,8 +100,7 @@ public:
 		auto j_first = jumping_iterator(first, gap);
 		auto j_last = jumping_iterator(last, gap);
 
-		auto j_result = ranges::upper_bound(j_first, j_last, *last, is_before);
-		return j_result.base();
+		return ranges::upper_bound(j_first, j_last, *last, is_before);
 	}
 
 	static constexpr auto
@@ -184,6 +124,6 @@ public:
 			return !is_before(*last, value);
 		});
 
-		return rj_result.base().base();
+		return rj_result.base();
 	}
 };

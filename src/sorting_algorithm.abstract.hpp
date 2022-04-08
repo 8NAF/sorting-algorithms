@@ -22,8 +22,6 @@ namespace mak
 	using types::default_break_function;
 	using types::default_gap_sequence_function;
 
-	using types::limit;
-
 	using functions::midpoint;
 
 	template <

@@ -6,9 +6,11 @@
 #pragma once
 
 #include "bubble_sort.hpp"
+#include "adaptors/cyclic_iterator.adaptor.hpp"
 
 namespace mak
 {
+	using adaptors::cyclic_iterator;
 	class comb_sort;
 }
 
@@ -58,14 +60,17 @@ public:
 		{
 			if (gap >= d_first_last) continue;
 
-			auto head_limit = limit(first, ranges::next(first, gap));
-			auto head = head_limit.lower;
+			auto head = cyclic_iterator(first, ranges::next(first, gap));
 
 			auto mod = d_first_last % gap;
-			auto tail = ranges::prev(last, mod);
-			auto tail_limit = limit(ranges::prev(tail, gap - mod - 1), last);
+			auto current_tail = ranges::prev(last, mod);
+			auto tail = cyclic_iterator(
+				ranges::prev(current_tail, gap - mod - 1),
+				last,
+				current_tail
+			);
 
-			while (head != head_limit.upper)
+			while (head.is_not_last())
 			{
 				family.sort_subrange({
 					.first = head,
@@ -74,7 +79,7 @@ public:
 				});
 
 				++head;
-				tail = tail_limit.next(tail);
+				++tail;
 			}
 		}
 
