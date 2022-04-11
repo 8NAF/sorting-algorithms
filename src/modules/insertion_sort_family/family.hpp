@@ -52,16 +52,17 @@ public:
 	using base_family = base_family<iterator_t, comparator_t, projection_t>;
 	using base_family::base_family;
 
-	template <class search_function_t>
-	constexpr void
+	template <class sentinel_t, class search_function_t>
+	constexpr auto
 	generic_insertion_sort
 	(
 		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
+		sentinel_t last,
 		make_unsigned_t<bidirectional_iterator_t> gap,
 		search_function_t search
 	) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>&&
+		std::sentinel_for<sentinel_t, bidirectional_iterator_t> &&
 		std::invocable
 		<
 			search_function_t,
@@ -85,6 +86,8 @@ public:
 			++tail;
 			++head;
 		}
+
+		return tail.current_position();
 	}
 
 	static constexpr auto

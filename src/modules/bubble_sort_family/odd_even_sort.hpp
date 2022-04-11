@@ -18,20 +18,22 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> forward_iterator_t,
+		std::sentinel_for<forward_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
 	>
 	requires sortable<forward_iterator_t, comparator_t, projection_t>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		forward_iterator_t first,
-		forward_iterator_t last,
+		sentinel_t sentinel,
 		comparator_t is_before = {},
 		projection_t projection = {}
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		auto last = get_last_iterator(first, sentinel);
+		if (no_need_to_sort(first, last)) return last;
 
 		auto family = family_t<
 			forward_iterator_t, comparator_t, projection_t
@@ -65,7 +67,9 @@ struct mak::odd_even_sort : mak::base_sorting_algorithm<
 		for (bool not_swapped = true; true; not_swapped = true) {
 			sort_even(first_even, last_even, not_swapped);
 			sort_odd(first_odd, last_odd, not_swapped);
-			if (not_swapped) return;
+			if (not_swapped) break;
 		}
+
+		return last;
 	}
 };

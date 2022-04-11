@@ -47,6 +47,10 @@ public:
 		, current{ first }
 	{}
 
+	constexpr auto const& current_position() const {
+		return current;
+	}
+
 	constexpr cyclic_iterator
 	(
 		iterator_type first,

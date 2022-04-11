@@ -17,20 +17,23 @@ struct mak::pancake_sort : mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		std::sentinel_for<bidirectional_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
 	>
 	requires sortable<bidirectional_iterator_t, comparator_t, projection_t>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
+		sentinel_t last,
 		comparator_t is_before = {},
 		projection_t projection = {}
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		if (no_need_to_sort(first, last)) {
+			return get_last_iterator(first, last);
+		}
 
 		auto family = family_t<
 			bidirectional_iterator_t, comparator_t, projection_t
@@ -48,5 +51,7 @@ struct mak::pancake_sort : mak::base_sorting_algorithm<
 				// ranges::reverse(first, extreme + 1);
 			}
 		}
+
+		return first;
 	}
 };

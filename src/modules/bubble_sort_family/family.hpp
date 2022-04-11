@@ -32,7 +32,7 @@ private:
 	unsigned_opt_t gap_opt;
 	unsigned_opt_t step_opt;
 
-	static auto get_first_not_nullopt
+	constexpr static auto get_first_not_nullopt
 	(
 		unsigned_opt_t func,
 		unsigned_opt_t cls,
@@ -62,12 +62,13 @@ public:
 		, step_opt{ step_opt }
 	{ }
 
-	template <class break_function_t = default_break_function<iterator_t>>
-	requires std::predicate<break_function_t, const iterator_t>
+	template <class break_function_t = default_break_function<forward_iterator_t>>
+	requires
+		std::predicate<break_function_t, const forward_iterator_t>
 	struct options
 	{
-		iterator_t first;
-		iterator_t last;
+		forward_iterator_t first;
+		forward_iterator_t last;
 		unsigned_opt_t gap_opt = std::nullopt;
 		unsigned_opt_t step_opt = std::nullopt;
 		break_function_t is_break_on_first_swap = default_break_function<iterator_t>(
@@ -75,8 +76,9 @@ public:
 		);
 	};
 
-	template <class break_function_t = default_break_function<iterator_t>>
-	requires std::predicate<break_function_t, const forward_iterator_t>
+	template <class break_function_t = default_break_function<forward_iterator_t>>
+	requires
+		std::predicate<break_function_t, const forward_iterator_t>
 	constexpr void
 	sort_subrange(options<break_function_t> options) const
 	{
@@ -108,7 +110,7 @@ public:
 	find_last_swap
 	(
 		forward_iterator_t first,
-		forward_iterator_t last,
+		std::sentinel_for<forward_iterator_t> auto last,
 		unsigned_opt_t gap_opt = std::nullopt
 	) const
 	{

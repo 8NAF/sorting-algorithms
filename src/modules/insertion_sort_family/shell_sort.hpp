@@ -45,42 +45,48 @@ struct mak::shell_sort : private mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		std::sentinel_for<bidirectional_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection,
 		std::invocable<std::uint64_t> gap_sequence_function = default_gap_sequence_function
 	>
 	requires sortable<bidirectional_iterator_t, comparator_t, projection_t>
 		&& std::ranges::range<std::invoke_result_t<gap_sequence_function, std::uint64_t>>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
+		sentinel_t sentinel,
 		comparator_t is_before = {},
 		projection_t projection = {},
 		gap_sequence_function get_gap_sequence = get_Sedgewick_1982_gap_sequence
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		if (no_need_to_sort(first, sentinel)) {
+			return get_last_iterator(first, sentinel);
+		}
 
 		auto family = family_t<
 			bidirectional_iterator_t, comparator_t, projection_t
 		>(std::move(is_before), std::move(projection));
 
-		const uint64_t d_first_last = ranges::distance(first, last);
+		const uint64_t d_first_last = ranges::distance(first, sentinel);
 		auto gap_sequence = std::invoke(get_gap_sequence, d_first_last);
 
+		auto last = first;
 		for (auto& gap : gap_sequence)
 		{
 			if (gap >= d_first_last) continue;
 
-			family.generic_insertion_sort(
+			last = family.generic_insertion_sort(
 				first,
-				last,
+				sentinel,
 				gap,
 				decltype(family)::reverse_linear_search
 			);
 		}
+
+		return last;
 	}
 
 	template <
@@ -91,21 +97,21 @@ struct mak::shell_sort : private mak::base_sorting_algorithm<
 	>
 	requires sortable<ranges::iterator_t<range_t>, comparator_t, projection_t>
 		&& std::ranges::range<std::invoke_result_t<gap_sequence_function, std::uint64_t>>
-	static constexpr void
+	static constexpr ranges::borrowed_iterator_t<range_t>
 	sort
 	(
-		range_t& range,
+		range_t&& range,
 		comparator_t is_before = {},
 		projection_t projection = {},
 		gap_sequence_function get_gap_sequence = get_Sedgewick_1982_gap_sequence
 	)
 	{
-		sort(
+		return sort(
 			ranges::begin(range),
 			ranges::end(range),
-			is_before,
-			projection,
-			get_gap_sequence
+			std::move(is_before),
+			std::move(projection),
+			std::move(get_gap_sequence)
 		);
 	}
 

@@ -56,26 +56,29 @@ public:
 
 	template <
 		tag_to_iterator<tag_t> bidirectional_iterator_t,
+		std::sentinel_for<bidirectional_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
 	>
 	requires sortable<bidirectional_iterator_t, comparator_t, projection_t>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		bidirectional_iterator_t first,
-		bidirectional_iterator_t last,
+		sentinel_t sentinel,
 		comparator_t is_before = {},
 		projection_t projection = {}
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		auto last = get_last_iterator(first, sentinel);
+		if (no_need_to_sort(first, last)) return last;
 
 		std::size_t max_depth = std::log(ranges::distance(first, last)) * 2;
 		auto qs_family = quick_sort_family<
 			bidirectional_iterator_t, comparator_t, projection_t
 		>(std::move(is_before), std::move(projection));
-		
+
 		recursive_sort(first, last, qs_family, max_depth);
+		return last;
 	}
 };

@@ -47,7 +47,7 @@ public:
 		class projection_t = default_projection
 	>
 	requires sortable<ranges::iterator_t<range_t>, comparator_t, projection_t>
-	static constexpr void
+	static constexpr ranges::borrowed_iterator_t<range_t>
 	sort
 	(
 		range_t&& range,
@@ -76,7 +76,7 @@ protected:
 	static constexpr bool no_need_to_sort
 	(
 		iterator_t first,
-		iterator_t last
+		std::sentinel_for<iterator_t> auto last
 	)
 	{
 		if constexpr (std::random_access_iterator<iterator_t>) {
@@ -84,6 +84,25 @@ protected:
 		}
 		else {
 			return (first == last || ++first == last);
+		}
+	}
+
+	template <
+		std::input_iterator iterator_t,
+		std::sentinel_for<iterator_t> sentinel_t
+	>
+	static constexpr auto
+	get_last_iterator
+	(
+		iterator_t iterator,
+		sentinel_t sentinel
+	)
+	{
+		if constexpr (std::input_iterator<sentinel_t>) {
+			return sentinel;
+		}
+		else {
+			return ranges::next(iterator, sentinel);
 		}
 	}
 };

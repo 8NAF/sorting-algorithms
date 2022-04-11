@@ -62,6 +62,7 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 
 # Todo
 
--   support `sentinel`
--	support `dangling`
+-	fix `projection`
+-	merge `sorting algorithm` abstract class and `family` abstract class into one
+-	add `for_each_iter`
 -   implementing BST

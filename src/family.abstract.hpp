@@ -32,18 +32,24 @@ private:
 		return [
 			comparator = std::move(comparator),
 			projection = std::move(projection)
-		](auto const& lhs, auto const& rhs) constexpr {
+		](auto&& lhs, auto&& rhs) constexpr
+		{
+			using left_t = decltype(lhs);
+			using right_t = decltype(rhs);
+
 			if constexpr (three_way_comparator<comparator_t>) {
 				return std::invoke(
 					comparator,
-					std::invoke(projection, lhs) <=> std::invoke(projection,rhs)
+					std::invoke(projection, std::forward<left_t>(lhs))
+					<=>
+					std::invoke(projection, std::forward<right_t>(rhs))
 				);
 			}
 			else {
 				return std::invoke(
 					comparator,
-					std::invoke(projection, lhs),
-					std::invoke(projection, rhs)
+					std::invoke(projection, std::forward<left_t>(lhs)),
+					std::invoke(projection, std::forward<right_t>(rhs))
 				);
 			}
 		};

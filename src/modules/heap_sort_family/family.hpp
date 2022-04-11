@@ -16,10 +16,6 @@ private:
 	using forward_iterator_t = iterator_t;
 	using bidirectional_iterator_t = iterator_t;
 
-public:
-	using base_family = base_family<iterator_t, comparator_t, projection_t>;
-	using base_family::base_family;
-
 	constexpr void
 	heapify
 	(
@@ -62,19 +58,23 @@ public:
 		*parent = std::move(stored_value);
 	}
 
+public:
+	using base_family = base_family<iterator_t, comparator_t, projection_t>;
+	using base_family::base_family;
+
 	constexpr void
 	make_heap(bidirectional_iterator_t first, bidirectional_iterator_t last) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
-		// The number of nodes have children in a sequence with n elements is: trunc(n div 2)
+		// The number of nodes have children in a sequence with n elements:
+		// trunc(n div 2) (midpoint)
 		// Since the array starts at 0, we have to subtract 1
-		auto last_node_has_child = [](auto&& first, auto&& last)
-		{
-			auto n_nodes_have_child = ranges::distance(first, last) / 2;
-			return ranges::next(first, n_nodes_have_child - 1);
+		auto get_last_node_has_children = [&]() {
+			return ranges::prev(midpoint(first, last));
 		};
 
-		for (auto current = last_node_has_child(first, last); current != first; --current) {
+		auto current = get_last_node_has_children();
+		for ( ;current != first; --current) {
 			heapify(current, last, first);
 		}
 		heapify(first, last, first);

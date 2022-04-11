@@ -17,20 +17,23 @@ struct mak::counting_sort : mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> forward_iterator_t,
+		std::sentinel_for<forward_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
 	>
 	requires sortable<forward_iterator_t, comparator_t, projection_t>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		forward_iterator_t first,
-		forward_iterator_t last,
+		sentinel_t last,
 		comparator_t is_before = {},
 		projection_t projection = {}
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		if (no_need_to_sort(first, last)) {
+			return get_last_iterator(first, last);
+		}
 
 		auto family = family_t<
 			forward_iterator_t, comparator_t, projection_t
@@ -50,5 +53,7 @@ struct mak::counting_sort : mak::base_sorting_algorithm<
 		for (auto& [key, value] : keys_values) {
 			*(first++) = value;
 		}
+
+		return first;
 	}
 };

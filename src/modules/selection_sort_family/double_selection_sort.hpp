@@ -18,30 +18,32 @@ struct mak::double_selection_sort : mak::base_sorting_algorithm<
 
 	template <
 		tag_to_iterator<tag_t> forward_iterator_t,
+		std::sentinel_for<forward_iterator_t> sentinel_t,
 		class comparator_t = default_comparator,
 		class projection_t = default_projection
 	>
 	requires sortable<forward_iterator_t, comparator_t, projection_t>
-	static constexpr void
+	static constexpr auto
 	sort
 	(
 		forward_iterator_t first,
-		forward_iterator_t last,
+		sentinel_t sentinel,
 		comparator_t is_before = {},
 		projection_t projection = {}
 	)
 	{
-		if (no_need_to_sort(first, last)) return;
+		auto o_last = get_last_iterator(first, sentinel);
+		if (no_need_to_sort(first, o_last)) return o_last;
 
 		auto family = family_t<
 			forward_iterator_t, comparator_t, projection_t
 		>(std::move(is_before), std::move(projection));
 
-		auto middle = midpoint(first, last);
-		for (; first != middle; ++first)
+		auto middle = midpoint(first, o_last);
+		for (auto last = o_last; first != middle; ++first)
 		{
 			auto [left, right] = ranges::minmax_element(first, last, family.is_before);
-			if (bool are_all_sorted = (*left == *right); are_all_sorted) return;
+			if (bool are_all_sorted = (*left == *right); are_all_sorted) break;
 
 			--last;
 			right = (first != right) ? right : left;
@@ -49,5 +51,7 @@ struct mak::double_selection_sort : mak::base_sorting_algorithm<
 			ranges::iter_swap(first, left);
 			ranges::iter_swap(last, right);
 		}
+
+		return o_last;
 	}
 };
