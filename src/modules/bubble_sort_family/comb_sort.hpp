@@ -85,6 +85,6 @@ public:
 			}
 		}
 
-		return bubble_sort::sort(first, ++last, is_before);
+		return bubble_sort::sort(first, ++last, is_before, projection);
 	}
 };
