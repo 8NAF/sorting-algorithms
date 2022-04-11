@@ -47,8 +47,8 @@ struct mak::bingo_sort : mak::base_sorting_algorithm<
 			++first;
 
 			ranges::for_each(first, last,
-				[&first, &extreme](auto&& value) {
-					if (value == *extreme)
+				[&first, &extreme, &family](auto&& value) {
+					if (family.is_equal(value, *extreme))
 					{
 						ranges::swap(*first, value);
 						++first;

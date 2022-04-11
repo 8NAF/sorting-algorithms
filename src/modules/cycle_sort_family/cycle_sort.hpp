@@ -53,7 +53,9 @@ struct mak::cycle_sort : mak::base_sorting_algorithm<
 				if (0 == n_after_last) break;
 
 				auto expected_position = ranges::prev(last, n_after_last);
-				for (; *expected_position == last_value; --expected_position);
+				while (family.is_equal(*expected_position, last_value)) {
+					--expected_position;
+				}
 				ranges::iter_swap(expected_position, last);
 			}
 		}

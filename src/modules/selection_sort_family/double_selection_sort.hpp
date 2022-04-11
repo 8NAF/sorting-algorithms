@@ -43,7 +43,9 @@ struct mak::double_selection_sort : mak::base_sorting_algorithm<
 		for (auto last = o_last; first != middle; ++first)
 		{
 			auto [left, right] = ranges::minmax_element(first, last, family.is_before);
-			if (bool are_all_sorted = (*left == *right); are_all_sorted) break;
+
+			bool are_all_sorted = family.is_equal(*left, *right);
+			if (are_all_sorted) break;
 
 			--last;
 			right = (first != right) ? right : left;

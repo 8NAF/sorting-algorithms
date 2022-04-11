@@ -96,4 +96,3 @@ public:
 		return current != last;
 	}
 };
-
