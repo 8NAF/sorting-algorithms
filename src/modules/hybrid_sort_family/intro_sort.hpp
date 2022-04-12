@@ -34,13 +34,15 @@ private:
 		std::size_t& max_depth
 	)
 	{
-		if (ranges::distance(first, last) < 16) {
-			insertion_sort::sort(first, last, qs_family.is_before);
+		if (ranges::distance(first, last) < 16)
+		{
+			insertion_sort::sort(first, last, qs_family.comparator, qs_family.projection);
 			return;
 		}
 
-		if (0 == max_depth) {
-			heap_sort::sort(first, last, qs_family.is_before);
+		if (0 == max_depth)
+		{
+			heap_sort::sort(first, last, qs_family.comparator, qs_family.projection);
 			return;
 		}
 
