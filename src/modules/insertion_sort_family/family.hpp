@@ -96,7 +96,7 @@ public:
 		bidirectional_iterator_t first,
 		bidirectional_iterator_t last,
 		decltype(insertion_sort_family::is_before) is_before,
-		make_unsigned_t<forward_iterator_t> gap
+		make_unsigned_t<bidirectional_iterator_t> gap
 	)
 		requires std::bidirectional_iterator<bidirectional_iterator_t>
 	{
