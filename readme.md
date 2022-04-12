@@ -62,5 +62,4 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 
 # Todo
 
--	add `for_each_iter`
 -   implementing BST
