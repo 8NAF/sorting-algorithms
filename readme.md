@@ -24,11 +24,9 @@ $ g++ -std=c++20 -I./src ./src/test/index.cpp
 | std::pmr::forward_list   | std::ranges::reverse_view      |                        |
 | std::pmr::list           | std::ranges::single_view       |                        |
 | std::pmr::vector         | std::ranges::take_view         |                        |
-| std::pmr::basic_string   | std::ranges::take_while_view * |                        |
+| std::pmr::basic_string   | std::ranges::take_while_view   |                        |
 | raw array                | std::ranges::values_view       |                        |
 |                          | std::ranges::subrange          |                        |
-
-`*`: compiler error because `decltype(std::ranges::begin(T)) != decltype(std::ranges::end(T))`.
 
 # Unsupported types
 
