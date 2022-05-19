@@ -63,7 +63,7 @@ public:
 	) const
 		requires std::bidirectional_iterator<bidirectional_iterator_t>&&
 		std::sentinel_for<sentinel_t, bidirectional_iterator_t> &&
-		std::invocable
+		std::regular_invocable
 		<
 			search_function_t,
 			bidirectional_iterator_t,
